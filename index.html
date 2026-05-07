@@ -352,7 +352,10 @@ const STAFF={
 /* ═══════════════════════════════════════════════════════════
    ASSETS DATA
 ═══════════════════════════════════════════════════════════ */
-const ASSETS=[
+/* DATA LOADED FROM /data/*.json at runtime — see App() useEffect */
+const ASSETS_PLACEHOLDER=null;
+// original inline array replaced
+const ASSETS_INLINE=[
   {id:'AST-001',nameZh:'滨河大桥A区',nameEn:'Riverside Bridge Zone A',typeZh:'桥梁',typeEn:'Bridge',locationZh:'A区3号道路',locationEn:'Zone A - Road 3',status:'critical',lastInspected:'2026-04-28',riskScore:87,mapX:30,mapY:35},
   {id:'AST-002',nameZh:'工业园输气管道B2',nameEn:'Industrial Park Gas Pipeline B2',typeZh:'管道',typeEn:'Pipeline',locationZh:'工业园区北区B2段',locationEn:'Industrial Park North - B2',status:'warning',lastInspected:'2026-04-22',riskScore:62,mapX:65,mapY:55},
   {id:'AST-003',nameZh:'变电站T-07',nameEn:'Substation T-07',typeZh:'变压器',typeEn:'Transformer',locationZh:'中央电网12号站',locationEn:'Central Grid Station 12',status:'normal',lastInspected:'2026-05-01',riskScore:18,mapX:50,mapY:25},

@@ -1,0 +1,10 @@
+[
+  { "id": "TASK-2026-041", "assetId": "AST-001", "assetName": "桥梁A区 — 3号路", "assignedTo": "张伟", "staffKey": "ZW", "scheduledDate": "2026-05-06", "status": "pending", "priority": "high" },
+  { "id": "TASK-2026-042", "assetId": "AST-006", "assetName": "桥梁C区 — 8号公路", "assignedTo": "李芳", "staffKey": "LF", "scheduledDate": "2026-05-05", "status": "in_progress", "priority": "high" },
+  { "id": "TASK-2026-043", "assetId": "AST-010", "assetName": "电力铁塔 UT-35", "assignedTo": "王建", "staffKey": "WJ", "scheduledDate": "2026-04-30", "status": "overdue", "priority": "high" },
+  { "id": "TASK-2026-044", "assetId": "AST-002", "assetName": "管道B区 — 2号区", "assignedTo": "陈梅", "staffKey": "CM", "scheduledDate": "2026-05-07", "status": "pending", "priority": "medium" },
+  { "id": "TASK-2026-045", "assetId": "AST-008", "assetName": "变压站 T-14", "assignedTo": "张伟", "staffKey": "ZW", "scheduledDate": "2026-05-08", "status": "pending", "priority": "medium" },
+  { "id": "TASK-2026-046", "assetId": "AST-004", "assetName": "路面 — 河滨走廊", "assignedTo": "刘洋", "staffKey": "LY", "scheduledDate": "2026-05-04", "status": "completed", "priority": "medium" },
+  { "id": "TASK-2026-047", "assetId": "AST-012", "assetName": "管道南环线 — 7段", "assignedTo": "李芳", "staffKey": "LF", "scheduledDate": "2026-05-09", "status": "pending", "priority": "low" },
+  { "id": "TASK-2026-048", "assetId": "AST-003", "assetName": "变压站 T-07", "assignedTo": "陈梅", "staffKey": "CM", "scheduledDate": "2026-05-03", "status": "completed", "priority": "low" }
+]

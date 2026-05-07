@@ -1,0 +1,14 @@
+[
+  { "id": "AST-001", "name": "桥梁A区 — 3号路", "type": "bridge", "location": "第4区", "status": "critical", "lastInspected": "2026-04-28", "riskScore": 87 },
+  { "id": "AST-002", "name": "管道B区 — 2号区", "type": "pipeline", "location": "工业园北区", "status": "warning", "lastInspected": "2026-04-22", "riskScore": 62 },
+  { "id": "AST-003", "name": "变压站 T-07", "type": "transformer", "location": "中央电网12号点", "status": "normal", "lastInspected": "2026-05-01", "riskScore": 18 },
+  { "id": "AST-004", "name": "路面 — 河滨走廊", "type": "road_surface", "location": "河滨走廊", "status": "warning", "lastInspected": "2026-04-30", "riskScore": 55 },
+  { "id": "AST-005", "name": "电力铁塔 UT-22", "type": "utility_tower", "location": "第7区", "status": "normal", "lastInspected": "2026-04-25", "riskScore": 12 },
+  { "id": "AST-006", "name": "桥梁C区 — 8号公路", "type": "bridge", "location": "第2区", "status": "critical", "lastInspected": "2026-04-15", "riskScore": 91 },
+  { "id": "AST-007", "name": "管道北环线 — 4段", "type": "pipeline", "location": "北工业区", "status": "normal", "lastInspected": "2026-05-02", "riskScore": 22 },
+  { "id": "AST-008", "name": "变压站 T-14", "type": "transformer", "location": "东部变电站", "status": "warning", "lastInspected": "2026-04-29", "riskScore": 48 },
+  { "id": "AST-009", "name": "路面 — 第4区主干道", "type": "road_surface", "location": "第4区", "status": "normal", "lastInspected": "2026-05-03", "riskScore": 9 },
+  { "id": "AST-010", "name": "电力铁塔 UT-35", "type": "utility_tower", "location": "滨海区", "status": "critical", "lastInspected": "2026-04-10", "riskScore": 79 },
+  { "id": "AST-011", "name": "桥梁D区 — 立交2号", "type": "bridge", "location": "第9区", "status": "normal", "lastInspected": "2026-05-01", "riskScore": 15 },
+  { "id": "AST-012", "name": "管道南环线 — 7段", "type": "pipeline", "location": "南工业区", "status": "warning", "lastInspected": "2026-04-27", "riskScore": 58 }
+]
