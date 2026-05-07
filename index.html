@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FieldGuard AI v3 — Enterprise Field Data Governance Platform</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;background:#F1F5F9}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#f1f5f9}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+.sidebar{background:#0F172A;width:224px;height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;z-index:100;overflow-y:auto}
+.nav-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:13.5px;font-weight:500;color:#94A3B8;text-align:left;transition:all .15s;margin-bottom:2px}
+.nav-btn:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-btn.active{background:#1E40AF;color:#fff;border-left:3px solid #60A5FA;padding-left:9px}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04)}
+.stat-card{border-left:4px solid}
+.btn-primary{background:#2563EB;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:6px;padding:0 16px}
+.btn-primary:hover:not(:disabled){background:#1D4ED8;box-shadow:0 4px 12px rgba(37,99,235,.35);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-ghost{background:#fff;color:#374151;border:1px solid #D1D5DB;border-radius:8px;cursor:pointer;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:6px;padding:0 12px}
+.btn-ghost:hover{background:#F9FAFB;border-color:#9CA3AF}
+.drop-zone{border:2px dashed #CBD5E1;border-radius:10px;transition:all .2s;cursor:pointer;text-align:center}
+.drop-zone:hover,.drop-zone.dz-active{border-color:#3B82F6;background:#EFF6FF}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{animation:spin .75s linear infinite;display:inline-block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease-out}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulse 2s infinite}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.slide-down{animation:slideDown .25s ease-out}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;white-space:nowrap;border:1px solid}
+.b-high{background:#FEE2E2;color:#B91C1C;border-color:#FECACA}
+.b-medium{background:#FEF3C7;color:#92400E;border-color:#FDE68A}
+.b-low{background:#D1FAE5;color:#065F46;border-color:#A7F3D0}
+.b-critical{background:#FEE2E2;color:#B91C1C;border-color:#FECACA}
+.b-warning{background:#FEF3C7;color:#92400E;border-color:#FDE68A}
+.b-normal{background:#D1FAE5;color:#065F46;border-color:#A7F3D0}
+.b-pending{background:#F1F5F9;color:#475569;border-color:#E2E8F0}
+.b-inprogress{background:#DBEAFE;color:#1E40AF;border-color:#BFDBFE}
+.b-completed{background:#D1FAE5;color:#065F46;border-color:#A7F3D0}
+.b-overdue{background:#FEE2E2;color:#B91C1C;border-color:#FECACA}
+.b-open{background:#DBEAFE;color:#1E40AF;border-color:#BFDBFE}
+.b-acknowledged{background:#FEF3C7;color:#92400E;border-color:#FDE68A}
+.b-resolved{background:#D1FAE5;color:#065F46;border-color:#A7F3D0}
+.tr:hover{background:#F8FAFC}
+.progress{height:6px;border-radius:3px;background:#E2E8F0;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.ai-card{border:1px solid #BFDBFE;background:linear-gradient(135deg,#EFF6FF,#F0F9FF);border-radius:12px}
+.conf-bar{height:8px;border-radius:4px;background:#E0F2FE;overflow:hidden}
+.conf-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#3B82F6,#06B6D4)}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:#fff;border-radius:14px;max-width:660px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-wide{max-width:820px}
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:#1E293B;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:8px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.trend-bar-wrap{display:flex;align-items:flex-end;gap:6px;height:80px}
+.trend-bar{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#3B82F6,#1D4ED8);min-width:0;transition:height .5s ease;cursor:pointer;position:relative}
+.trend-bar:hover{background:linear-gradient(180deg,#60A5FA,#2563EB)}
+.trend-bar .tip{display:none;position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:#1E293B;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.trend-bar:hover .tip{display:block}
+.pipeline{display:flex;align-items:center;gap:0;overflow-x:auto;padding:4px 0}
+.pipeline-step{flex:1;min-width:100px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:12px 10px;text-align:center;position:relative}
+.pipeline-arrow{color:#94A3B8;font-size:18px;flex-shrink:0;padding:0 4px}
+.filter-select{border:1px solid #E2E8F0;border-radius:8px;padding:7px 10px;font-size:13px;color:#374151;background:#fff;cursor:pointer;outline:none;transition:border-color .15s}
+.filter-select:focus{border-color:#3B82F6}
+.notif-panel{position:absolute;top:44px;right:0;width:340px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #E2E8F0;z-index:500}
+.assignee-link{color:#2563EB;cursor:pointer;font-weight:600;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+.assignee-link:hover{color:#1D4ED8}
+.map-mock{background:linear-gradient(135deg,#E0F2FE 0%,#BAE6FD 40%,#D1FAE5 70%,#E0F2FE 100%);border-radius:10px;position:relative;overflow:hidden;border:1px solid #BAE6FD}
+.map-grid-line{position:absolute;background:rgba(148,163,184,.2)}
+.map-pin{position:absolute;transform:translate(-50%,-100%);cursor:pointer}
+.map-pin-dot{width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.map-pin-label{background:#1E293B;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-top:2px;text-align:center}
+.role-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid;transition:all .15s}
+.photo-placeholder{background:linear-gradient(135deg,#1E293B,#334155);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94A3B8;font-size:12px;gap:6px}
+/* ── Drawer ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:800}
+@keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:500px;max-width:95vw;background:#fff;z-index:801;box-shadow:-8px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden;animation:slideInRight .28s cubic-bezier(.4,0,.2,1)}
+.drawer-header{padding:18px 24px;border-bottom:1px solid #E2E8F0;flex-shrink:0;background:#F8FAFC}
+.drawer-body{flex:1;overflow-y:auto;padding:20px 24px}
+/* ── Data quality ── */
+.quality-ring{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:3px solid}
+/* ── Lineage ── */
+.lineage-node{flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #BFDBFE;background:#EFF6FF}
+.lineage-line{flex:1;height:2px;background:linear-gradient(90deg,#3B82F6,#06B6D4);min-width:8px}
+/* ── Layer tabs ── */
+.layer-tab{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #E2E8F0;background:#fff;color:#64748B;transition:all .15s;white-space:nowrap}
+.layer-tab.active{background:#1E40AF;color:#fff;border-color:#1E40AF}
+/* ── Source dist bar ── */
+.src-bar{height:10px;border-radius:5px;transition:width .6s ease}
+/* ── Global search ── */
+@keyframes fadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.gsearch-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:900;display:flex;align-items:flex-start;justify-content:center;padding-top:80px}
+.gsearch-box{background:#fff;border-radius:14px;width:600px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;animation:fadeIn .2s ease-out}
+/* ── KPI delta ── */
+.kpi-delta-up{color:#10B981;font-size:11px;font-weight:700}
+.kpi-delta-down{color:#EF4444;font-size:11px;font-weight:700}
+/* ── Notif type colors ── */
+.notif-alert{border-left:3px solid #EF4444}
+.notif-task{border-left:3px solid #F59E0B}
+.notif-system{border-left:3px solid #3B82F6}
+.notif-ai{border-left:3px solid #8B5CF6}
+/* ── Decision badge ── */
+.decision-repair{background:#FEE2E2;color:#B91C1C;border:1px solid #FECACA;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;display:inline-block}
+.decision-dispatch{background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;display:inline-block}
+.decision-monitor{background:#D1FAE5;color:#065F46;border:1px solid #A7F3D0;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;display:inline-block}
+/* ── Skeleton ── */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skeleton{background:linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;display:inline-block}
+/* ── Tooltip ── */
+.has-tip{position:relative}
+.has-tip:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1E293B;color:#fff;font-size:10px;font-weight:600;padding:4px 8px;border-radius:5px;white-space:nowrap;z-index:999;pointer-events:none}
+.has-tip:hover::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1E293B;z-index:999}
+/* ── Map popup ── */
+.map-popup{position:absolute;background:#fff;border-radius:8px;padding:8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.2);border:1px solid #E2E8F0;z-index:10;min-width:150px;pointer-events:none;transform:translate(-50%,-110%)}
+/* ── Role note colors ── */
+.role-note-inspector{background:#F0FDF4;border-color:#A7F3D0;color:#065F46}
+.role-note-supervisor{background:#FFFBEB;border-color:#FDE68A;color:#92400E}
+.role-note-manager{background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef,useEffect,useCallback,createContext,useContext}=React;
+
+/* ═══════════════════════════════════════════════════════════
+   i18n DICTIONARY
+═══════════════════════════════════════════════════════════ */
+const I18N={
+  zh:{
+    appName:'FieldGuard AI',appSub:'数据治理平台',
+    nav:{dashboard:'仪表盘',upload:'数据上传',reports:'报告中心',datacenter:'数据中心',profile:'个人中心'},
+    langBtn:'English',
+    roles:{inspector:'个人',supervisor:'部门',manager:'全局'},
+    roleSwitch:'切换数据视图',
+    dashboard:{
+      title:'仪表盘',sub:'实时监控企业资产状态与巡检任务',
+      stats:{total:'资产总数',highRisk:'高风险资产',accuracy:'AI识别准确率',pending:'待处理任务',
+        riskGrowth:'风险增长率',taskCompletion:'任务完成率',highRiskChange:'高风险资产变化'},
+      taskTable:{title:'巡检任务列表',sub:'当前活跃与计划中的外业任务',total:'条任务',
+        cols:['任务编号','资产名称','状态','优先级','负责人','计划日期']},
+      statusOverview:{title:'资产状态概览',normal:'正常',warning:'预警',critical:'严重'},
+      alerts:{title:'风险预警',riskVal:'风险值'},
+      trend:{title:'风险趋势分析',labels:['周一','周二','周三','周四','周五','周六','周日'],
+        series7d:'近7天',series30d:'近30天',high:'高风险',medium:'中风险',low:'低风险'},
+      regionRisk:{title:'区域风险分布'},
+      roleNote:{inspector:'当前仅显示您负责的任务',supervisor:'当前显示本部门所有任务',manager:'当前显示全公司所有任务'},
+      aiDecision:{title:'AI 决策建议',live:'实时生成',criticalTip:'处严重风险资产，建议立即安排维修处理，优先处理风险值最高的资产。',overdueTip:'个逾期任务，请立即跟进处理，避免风险扩大。',goodStatus:'良好',needsAttention:'需关注',completionTip:'AI 识别准确率 94.2%，当前任务完成率'},
+    },
+    upload:{
+      title:'外业数据上传',sub:'上传现场数据，AI 自动结构化分析',
+      banner:{title:'AI 结构化分析引擎',desc:'上传现场图片与文字描述，AI 将自动识别资产类型、问题类型、风险等级，将非结构化数据转化为标准化资产记录。'},
+      step1:'上传现场图片',step2:'添加文字描述',step2opt:'（可选）',
+      dropzone:{main:'点击上传或拖拽图片至此处',sub:'支持 JPG、PNG、HEIC，最大 20MB'},
+      placeholder:'描述现场观察到的情况，例如：桥面东侧发现明显裂缝，宽约3mm，长约2米...',
+      voiceBtn:'🎙 语音输入',analyzeBtn:'🔍 开始 AI 分析',analyzingBtn:'AI 分析中，请稍候…',
+      step3:'获取当前位置',step3opt:'（推荐）',
+      loc:{
+        getBtn:'📍 获取当前位置',regetBtn:'🔄 重新获取',
+        getting:'正在定位…',
+        statusNone:'未获取位置',statusOk:'定位成功',statusFail:'定位失败（已使用模拟数据）',
+        lat:'纬度',lng:'经度',addr:'地址',
+        mockAddr:['上海市浦东新区张江高科技园区（模拟）','北京市朝阳区国贸商务区（模拟）','广州市天河区珠江新城（模拟）','深圳市南山区科技园（模拟）','成都市高新区天府软件园（模拟）'],
+        tip:'位置信息将随数据一并上传，用于精确定位巡检点。',
+      },
+      analyzing:{title:'AI 正在分析图像数据…',sub:'正在识别资产类型、问题特征与风险等级',
+        steps:['图像特征提取','资产类型识别','问题分类与定位','风险等级评估']},
+      result:{title:'AI 分析完成',confidence:'置信度',assetType:'资产类型',issueType:'问题类型',
+        location:'位置信息',severity:'风险等级',aiRec:'AI 建议',aiExplain:'AI 解释',
+        jsonTitle:'📦 结构化输出（JSON）',genReport:'📄 生成巡检报告'},
+    },
+    reports:{
+      title:'报告中心',sub:'查看 AI 生成的结构化巡检报告',
+      filters:{all:'全部',high:'高风险',medium:'中风险',low:'低风险'},
+      card:{confidence:'AI 置信度',aiRec:'AI 建议',viewDetail:'查看详情',download:'⬇ 下载'},
+      modal:{
+        fields:{reportId:'报告编号',assetId:'资产编号',assetType:'资产类型',issueType:'问题类型',
+          severity:'风险等级',location:'位置信息',confidence:'AI 置信度',status:'报告状态',
+          createdAt:'生成时间',note:'现场备注',aiRec:'AI 处置建议',jsonTitle:'📦 结构化数据记录'},
+        mapTitle:'风险点位地图',photoTitle:'现场照片',download:'⬇ 下载报告',
+      },
+      empty:'暂无符合条件的报告',count:'条报告',
+    },
+    datacenter:{
+      title:'数据中心',sub:'企业多源数据融合汇总中心',
+      filters:{all:'全部',severity:'严重程度',assetType:'资产类型',issueType:'问题类型'},
+      table:{title:'外业采集汇总结果',sub:'多源数据融合 · AI结构化处理完成',count:'条记录',
+        cols:['数据ID','资产类型','位置','问题类型','严重程度','AI置信度','采集时间','来源','层级','决策']},
+      source:{field:'外业人工采集',device:'设备自动识别',aerial:'高空智能巡检',legacy:'历史业务系统'},
+      layer:{raw:'原始数据层',cleaned:'清洗数据层',structured:'AI结构化层',all:'全部层级'},
+      quality:{completeness:'完整度',confidence:'可信度',freshness:'时效性'},
+      lineage:{title:'数据血缘',steps:['外业采集','AI识别','数据入库','报告生成'],desc:'数据流转路径'},
+      decision:{repair:'立即维修',dispatch:'派单处理',monitor:'持续观察'},
+      aiReason:'AI识别依据',
+      search:{placeholder:'搜索资产ID、地点、风险类型…',title:'全局搜索',noResult:'未找到匹配结果'},
+      sourceDist:{title:'数据来源分布'},
+      empty:'暂无数据',
+      pipeline:{title:'数据链路',steps:['外业采集','AI结构化','数据治理','智能监控','决策输出']},
+      summary:{title:'数据汇总统计',total:'总记录数',highRisk:'高风险记录',avgConf:'平均置信度',sources:'数据来源'},
+    },
+    profile:{
+      title:'个人中心',sub:'账户信息与系统设置',
+      info:{name:'姓名',empId:'工号',phone:'联系电话',company:'所属单位',dept:'分管部门',role:'职位'},
+      logout:'退出登录',settings:'系统设置',logoutConfirm:'确认退出登录？',
+      stats:{myTasks:'我的任务',completed:'已完成',pending:'待处理',reports:'提交报告'},
+    },
+    badges:{high:'高风险',medium:'中风险',low:'低风险',critical:'严重',warning:'预警',normal:'正常',
+      pending:'待处理',inprogress:'进行中',completed:'已完成',overdue:'已逾期',
+      open:'待处理',acknowledged:'已确认',resolved:'已解决'},
+    ai:{online:'AI 引擎在线',version:'模型版本 v2.4.1'},
+    user:{name:'张伟',role:'外业巡检员'},
+    toast:{reportCreated:'报告已生成，已跳转至报告中心',downloaded:'报告已成功下载',loggedOut:'已退出登录'},
+    rec:{high:'需要立即维修处理，请在24小时内派遣维修团队。',medium:'建议尽快安排巡检，请在两周内完成维护计划。',low:'建议持续监测，纳入下次定期维护计划。'},
+    aiExplain:{high:'根据图像特征与历史案例匹配，检测到高置信度结构性损伤风险，建议立即介入处理。',medium:'图像分析显示存在中等程度异常特征，与历史同类问题高度相似，建议近期安排专项巡检。',low:'当前检测到轻微异常信号，暂无紧迫风险，建议纳入常规监测计划。'},
+    notif:{title:'通知中心',markAll:'全部已读',
+      items:[
+        {id:1,type:'alert',icon:'🔴',title:'高风险报警',body:'滨河大桥A区检测到新裂缝，风险值87，请立即处理。',time:'5分钟前',unread:true},
+        {id:2,type:'ai',icon:'🤖',title:'AI分析完成',body:'高速立交桥C区巡检报告已生成，置信度88%。',time:'32分钟前',unread:true},
+        {id:3,type:'task',icon:'📋',title:'任务提醒',body:'TASK-2026-049 计划日期临近，请尽快完成。',time:'1小时前',unread:true},
+        {id:4,type:'alert',icon:'🟡',title:'中风险预警',body:'工业园输气管道B2腐蚀程度加重，建议本周安排维护。',time:'昨天',unread:false},
+        {id:5,type:'system',icon:'🔵',title:'系统通知',body:'数据治理模块已完成本日批量清洗，共处理记录35条。',time:'昨天',unread:false},
+      ]},
+    staffModal:{title:'员工信息',fields:{name:'姓名',empId:'工号',phone:'联系电话',position:'职位',dept:'所属部门',company:'子公司'},close:'关闭'},
+  },
+  en:{
+    appName:'FieldGuard AI',appSub:'Data Governance Platform',
+    nav:{dashboard:'Dashboard',upload:'Data Upload',reports:'Report Center',datacenter:'Data Center',profile:'My Profile'},
+    langBtn:'中文',
+    roles:{inspector:'Personal',supervisor:'Department',manager:'Global'},
+    roleSwitch:'Switch Data View',
+    dashboard:{
+      title:'Dashboard',sub:'Real-time monitoring of enterprise assets and inspection tasks',
+      stats:{total:'Total Assets',highRisk:'High Risk',accuracy:'AI Accuracy',pending:'Pending Tasks',
+        riskGrowth:'Risk Growth Rate',taskCompletion:'Task Completion',highRiskChange:'High Risk Change'},
+      taskTable:{title:'Inspection Tasks',sub:'Active and scheduled field assignments',total:'tasks',
+        cols:['Task ID','Asset Name','Status','Priority','Assigned To','Scheduled Date']},
+      statusOverview:{title:'Asset Status Overview',normal:'Normal',warning:'Warning',critical:'Critical'},
+      alerts:{title:'Risk Alerts',riskVal:'Risk'},
+      trend:{title:'Risk Trend Analysis',labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+        series7d:'Last 7 Days',series30d:'Last 30 Days',high:'High Risk',medium:'Medium Risk',low:'Low Risk'},
+      regionRisk:{title:'Regional Risk Distribution'},
+      roleNote:{inspector:'Showing only your assigned tasks',supervisor:'Showing all department tasks',manager:'Showing all company-wide tasks'},
+      aiDecision:{title:'AI Decision Suggestions',live:'Live',criticalTip:' critical-risk asset(s) detected. Immediate repair dispatch recommended — prioritize highest risk score.',overdueTip:' overdue task(s) require immediate follow-up to prevent risk escalation.',goodStatus:'Good',needsAttention:'Needs Attention',completionTip:'AI accuracy 94.2%. Task completion rate'},
+    },
+    upload:{
+      title:'Field Data Upload',sub:'Upload field data for AI-powered structured analysis',
+      banner:{title:'AI Structuring Engine',desc:'Upload field photos and text descriptions. AI will automatically identify asset type, issue type, and risk level — converting unstructured data into standardized asset records.'},
+      step1:'Upload Field Photo',step2:'Add Text Description',step2opt:'(optional)',
+      dropzone:{main:'Click to upload or drag & drop image here',sub:'Supports JPG, PNG, HEIC — max 20MB'},
+      placeholder:'Describe what you observed on-site, e.g.: Visible longitudinal crack on east beam, approx. 3mm wide, 2m long...',
+      voiceBtn:'🎙 Voice Input',analyzeBtn:'🔍 Start AI Analysis',analyzingBtn:'AI analyzing, please wait…',
+      step3:'Get Current Location',step3opt:'(recommended)',
+      loc:{
+        getBtn:'📍 Get Current Location',regetBtn:'🔄 Refresh Location',
+        getting:'Locating…',
+        statusNone:'Location not obtained',statusOk:'Location acquired',statusFail:'Location failed (mock data used)',
+        lat:'Latitude',lng:'Longitude',addr:'Address',
+        mockAddr:['Zhangjiang Hi-Tech Park, Pudong, Shanghai (mock)','Guomao CBD, Chaoyang, Beijing (mock)','Pearl River New Town, Tianhe, Guangzhou (mock)','Science Park, Nanshan, Shenzhen (mock)','Tianfu Software Park, Hi-Tech Zone, Chengdu (mock)'],
+        tip:'Location data will be uploaded alongside field data to precisely identify the inspection point.',
+      },
+      analyzing:{title:'AI is analyzing image data…',sub:'Identifying asset type, issue features, and risk level',
+        steps:['Image feature extraction','Asset type recognition','Issue classification & localization','Risk level assessment']},
+      result:{title:'AI Analysis Complete',confidence:'Confidence',assetType:'Asset Type',issueType:'Issue Type',
+        location:'Location',severity:'Risk Level',aiRec:'AI Recommendation',aiExplain:'AI Explanation',
+        jsonTitle:'📦 Structured Output (JSON)',genReport:'📄 Generate Inspection Report'},
+    },
+    reports:{
+      title:'Report Center',sub:'View AI-generated structured inspection reports',
+      filters:{all:'All',high:'High Risk',medium:'Medium Risk',low:'Low Risk'},
+      card:{confidence:'AI Confidence',aiRec:'AI Recommendation',viewDetail:'View Details',download:'⬇ Download'},
+      modal:{
+        fields:{reportId:'Report ID',assetId:'Asset ID',assetType:'Asset Type',issueType:'Issue Type',
+          severity:'Risk Level',location:'Location',confidence:'AI Confidence',status:'Status',
+          createdAt:'Created At',note:'Field Note',aiRec:'AI Recommendation',jsonTitle:'📦 Structured Data Record'},
+        mapTitle:'Risk Location Map',photoTitle:'Field Photo',download:'⬇ Download Report',
+      },
+      empty:'No reports match the current filter',count:'reports',
+    },
+    datacenter:{
+      title:'Data Center',sub:'Enterprise Multi-Source Data Fusion Hub · Field + IoT + Aerial + Legacy',
+      filters:{all:'All',severity:'Severity',assetType:'Asset Type',issueType:'Issue Type'},
+      table:{title:'Field Data Aggregation',sub:'Multi-source data fusion · AI structuring complete',count:'records',
+        cols:['Data ID','Asset Type','Location','Issue Type','Severity','AI Confidence','Collected At','Source','Layer','Decision']},
+      source:{field:'Field Manual',device:'Device Auto-ID',aerial:'Aerial Inspection',legacy:'Legacy System'},
+      layer:{raw:'Raw Data',cleaned:'Cleaned Data',structured:'AI Structured',all:'All Layers'},
+      quality:{completeness:'Completeness',confidence:'Confidence',freshness:'Freshness'},
+      lineage:{title:'Data Lineage',steps:['Field Collection','AI Recognition','Data Ingestion','Report Generation'],desc:'Data flow path'},
+      decision:{repair:'Immediate Repair',dispatch:'Dispatch Order',monitor:'Monitor'},
+      aiReason:'AI Reasoning',
+      search:{placeholder:'Search asset ID, location, risk type…',title:'Global Search',noResult:'No matching results'},
+      sourceDist:{title:'Source Distribution'},
+      empty:'No data available',
+      pipeline:{title:'Data Pipeline',steps:['Field Collection','AI Structuring','Data Governance','Smart Monitoring','Decision Output']},
+      summary:{title:'Data Summary',total:'Total Records',highRisk:'High Risk',avgConf:'Avg. Confidence',sources:'Data Sources'},
+    },
+    profile:{
+      title:'My Profile',sub:'Account information and system settings',
+      info:{name:'Name',empId:'Employee ID',phone:'Phone',company:'Company',dept:'Department',role:'Position'},
+      logout:'Sign Out',settings:'Settings',logoutConfirm:'Confirm sign out?',
+      stats:{myTasks:'My Tasks',completed:'Completed',pending:'Pending',reports:'Reports Submitted'},
+    },
+    badges:{high:'HIGH',medium:'MEDIUM',low:'LOW',critical:'CRITICAL',warning:'WARNING',normal:'NORMAL',
+      pending:'PENDING',inprogress:'IN PROGRESS',completed:'COMPLETED',overdue:'OVERDUE',
+      open:'OPEN',acknowledged:'ACKNOWLEDGED',resolved:'RESOLVED'},
+    ai:{online:'AI Engine Online',version:'Model v2.4.1'},
+    user:{name:'Zhang Wei',role:'Field Inspector'},
+    toast:{reportCreated:'Report generated. Redirected to Report Center.',downloaded:'Report downloaded successfully.',loggedOut:'Signed out successfully.'},
+    rec:{high:'Immediate repair required. Dispatch maintenance team within 24 hours.',medium:'Schedule inspection soon. Complete maintenance plan within 2 weeks.',low:'Continue monitoring. Include in next scheduled maintenance cycle.'},
+    aiExplain:{high:'Based on image features and historical case matching, high-confidence structural damage risk detected. Immediate intervention recommended.',medium:'Image analysis shows moderate anomaly features highly similar to historical cases. Targeted inspection recommended in the near term.',low:'Minor anomaly signals detected. No immediate risk. Recommend inclusion in routine monitoring plan.'},
+    notif:{title:'Notifications',markAll:'Mark all read',
+      items:[
+        {id:1,type:'alert',icon:'🔴',title:'High Risk Alert',body:'New crack detected at Riverside Bridge Zone A. Risk score 87. Immediate action required.',time:'5 min ago',unread:true},
+        {id:2,type:'ai',icon:'🤖',title:'AI Analysis Complete',body:'Inspection report for Highway Overpass Zone C generated. Confidence: 88%.',time:'32 min ago',unread:true},
+        {id:3,type:'task',icon:'📋',title:'Task Reminder',body:'TASK-2026-049 is due today. Please complete it.',time:'1 hr ago',unread:true},
+        {id:4,type:'alert',icon:'🟡',title:'Medium Risk Alert',body:'Corrosion on Industrial Park Pipeline B2 worsening. Maintenance recommended this week.',time:'Yesterday',unread:false},
+        {id:5,type:'system',icon:'🔵',title:'System Notice',body:'Data governance module completed daily batch cleaning. 35 records processed.',time:'Yesterday',unread:false},
+      ]},
+    staffModal:{title:'Staff Profile',fields:{name:'Name',empId:'Employee ID',phone:'Phone',position:'Position',dept:'Department',company:'Subsidiary'},close:'Close'},
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════
+   LANGUAGE CONTEXT
+═══════════════════════════════════════════════════════════ */
+const LangCtx=createContext({lang:'zh',t:I18N.zh,setLang:()=>{}});
+
+/* ═══════════════════════════════════════════════════════════
+   STAFF / PERSONNEL DATA
+═══════════════════════════════════════════════════════════ */
+const STAFF={
+  'ZW':{nameZh:'张伟',nameEn:'Zhang Wei',empId:'EMP-2021-0047',phone:'138-0010-2233',positionZh:'外业巡检员',positionEn:'Field Inspector',deptZh:'基础设施巡检部',deptEn:'Infrastructure Inspection Dept',companyZh:'华盛基础设施管理有限公司',companyEn:'Huasheng Infrastructure Management Co.'},
+  'LF':{nameZh:'李芳',nameEn:'Li Fang',empId:'EMP-2020-0031',phone:'139-0023-4455',positionZh:'高级巡检员',positionEn:'Senior Inspector',deptZh:'基础设施巡检部',deptEn:'Infrastructure Inspection Dept',companyZh:'华盛基础设施管理有限公司',companyEn:'Huasheng Infrastructure Management Co.'},
+  'WJ':{nameZh:'王建',nameEn:'Wang Jian',empId:'EMP-2019-0018',phone:'137-0034-5566',positionZh:'巡检工程师',positionEn:'Inspection Engineer',deptZh:'电力设施维护部',deptEn:'Power Facility Maintenance Dept',companyZh:'华盛电力工程有限公司',companyEn:'Huasheng Power Engineering Co.'},
+  'CM':{nameZh:'陈梅',nameEn:'Chen Mei',empId:'EMP-2022-0063',phone:'136-0045-6677',positionZh:'外业巡检员',positionEn:'Field Inspector',deptZh:'管道安全监测部',deptEn:'Pipeline Safety Monitoring Dept',companyZh:'华盛管道工程有限公司',companyEn:'Huasheng Pipeline Engineering Co.'},
+  'LY':{nameZh:'刘洋',nameEn:'Liu Yang',empId:'EMP-2021-0055',phone:'135-0056-7788',positionZh:'道路巡检专员',positionEn:'Road Inspection Specialist',deptZh:'市政道路养护部',deptEn:'Municipal Road Maintenance Dept',companyZh:'华盛市政工程有限公司',companyEn:'Huasheng Municipal Engineering Co.'},
+  'ZM':{nameZh:'赵明',nameEn:'Zhao Ming',empId:'EMP-2018-0009',phone:'133-0067-8899',positionZh:'巡检主管',positionEn:'Inspection Supervisor',deptZh:'基础设施巡检部',deptEn:'Infrastructure Inspection Dept',companyZh:'华盛基础设施管理有限公司',companyEn:'Huasheng Infrastructure Management Co.'},
+  'SX':{nameZh:'孙雪',nameEn:'Sun Xue',empId:'EMP-2023-0078',phone:'132-0078-9900',positionZh:'外业巡检员',positionEn:'Field Inspector',deptZh:'桥梁结构检测部',deptEn:'Bridge Structure Inspection Dept',companyZh:'华盛桥梁工程有限公司',companyEn:'Huasheng Bridge Engineering Co.'},
+  'HB':{nameZh:'黄斌',nameEn:'Huang Bin',empId:'EMP-2020-0042',phone:'131-0089-0011',positionZh:'变电站巡检员',positionEn:'Substation Inspector',deptZh:'电力设施维护部',deptEn:'Power Facility Maintenance Dept',companyZh:'华盛电力工程有限公司',companyEn:'Huasheng Power Engineering Co.'},
+  'WL':{nameZh:'吴磊',nameEn:'Wu Lei',empId:'EMP-2021-0059',phone:'130-0090-1122',positionZh:'管道巡检员',positionEn:'Pipeline Inspector',deptZh:'管道安全监测部',deptEn:'Pipeline Safety Monitoring Dept',companyZh:'华盛管道工程有限公司',companyEn:'Huasheng Pipeline Engineering Co.'},
+  'XH':{nameZh:'徐慧',nameEn:'Xu Hui',empId:'EMP-2022-0071',phone:'189-0101-2233',positionZh:'外业巡检员',positionEn:'Field Inspector',deptZh:'市政道路养护部',deptEn:'Municipal Road Maintenance Dept',companyZh:'华盛市政工程有限公司',companyEn:'Huasheng Municipal Engineering Co.'},
+};
+
+/* ═══════════════════════════════════════════════════════════
+   ASSETS DATA
+═══════════════════════════════════════════════════════════ */
+const ASSETS=[
+  {id:'AST-001',nameZh:'滨河大桥A区',nameEn:'Riverside Bridge Zone A',typeZh:'桥梁',typeEn:'Bridge',locationZh:'A区3号道路',locationEn:'Zone A - Road 3',status:'critical',lastInspected:'2026-04-28',riskScore:87,mapX:30,mapY:35},
+  {id:'AST-002',nameZh:'工业园输气管道B2',nameEn:'Industrial Park Gas Pipeline B2',typeZh:'管道',typeEn:'Pipeline',locationZh:'工业园区北区B2段',locationEn:'Industrial Park North - B2',status:'warning',lastInspected:'2026-04-22',riskScore:62,mapX:65,mapY:55},
+  {id:'AST-003',nameZh:'变电站T-07',nameEn:'Substation T-07',typeZh:'变压器',typeEn:'Transformer',locationZh:'中央电网12号站',locationEn:'Central Grid Station 12',status:'normal',lastInspected:'2026-05-01',riskScore:18,mapX:50,mapY:25},
+  {id:'AST-004',nameZh:'滨河走廊路面',nameEn:'Riverside Corridor Road',typeZh:'道路',typeEn:'Road Surface',locationZh:'滨河走廊KM4.2段',locationEn:'Riverside Corridor KM4.2',status:'warning',lastInspected:'2026-04-30',riskScore:55,mapX:25,mapY:60},
+  {id:'AST-005',nameZh:'输电铁塔UT-22',nameEn:'Utility Tower UT-22',typeZh:'铁塔',typeEn:'Utility Tower',locationZh:'第7区输电走廊',locationEn:'District 7 Power Corridor',status:'normal',lastInspected:'2026-04-25',riskScore:12,mapX:75,mapY:40},
+  {id:'AST-006',nameZh:'高速立交桥C区',nameEn:'Highway Overpass Zone C',typeZh:'桥梁',typeEn:'Bridge',locationZh:'第2区高速8号路',locationEn:'District 2 - Highway 8',status:'critical',lastInspected:'2026-04-15',riskScore:91,mapX:45,mapY:70},
+  {id:'AST-007',nameZh:'北环管道4段',nameEn:'North Ring Pipeline Seg.4',typeZh:'管道',typeEn:'Pipeline',locationZh:'北部工业区4号管段',locationEn:'North Industrial Zone Seg.4',status:'normal',lastInspected:'2026-05-02',riskScore:22,mapX:55,mapY:15},
+  {id:'AST-008',nameZh:'变电站T-14',nameEn:'Substation T-14',typeZh:'变压器',typeEn:'Transformer',locationZh:'东部变电站14号',locationEn:'East Substation No.14',status:'warning',lastInspected:'2026-04-29',riskScore:48,mapX:80,mapY:60},
+  {id:'AST-009',nameZh:'第4区主干道',nameEn:'District 4 Main Road',typeZh:'道路',typeEn:'Road Surface',locationZh:'第4区城市主干道',locationEn:'District 4 Main Road',status:'normal',lastInspected:'2026-05-03',riskScore:9,mapX:35,mapY:80},
+  {id:'AST-010',nameZh:'沿海铁塔UT-35',nameEn:'Coastal Tower UT-35',typeZh:'铁塔',typeEn:'Utility Tower',locationZh:'沿海区UT-35号铁塔',locationEn:'Coastal Zone Tower UT-35',status:'critical',lastInspected:'2026-04-10',riskScore:79,mapX:88,mapY:30},
+  {id:'AST-011',nameZh:'公园路人行天桥',nameEn:'Park Road Footbridge',typeZh:'桥梁',typeEn:'Bridge',locationZh:'第3区公园路天桥',locationEn:'District 3 Park Road',status:'normal',lastInspected:'2026-05-01',riskScore:15,mapX:20,mapY:45},
+  {id:'AST-012',nameZh:'南环管道7段',nameEn:'South Ring Pipeline Seg.7',typeZh:'管道',typeEn:'Pipeline',locationZh:'南部工业区7号管段',locationEn:'South Industrial Zone Seg.7',status:'warning',lastInspected:'2026-04-27',riskScore:58,mapX:60,mapY:85},
+];
+
+/* ═══════════════════════════════════════════════════════════
+   TASKS DATA (20+ tasks with Chinese staff names)
+═══════════════════════════════════════════════════════════ */
+const ALL_TASKS=[
+  {id:'TASK-2026-041',assetNameZh:'滨河大桥A区',assetNameEn:'Riverside Bridge Zone A',staffKey:'ZW',locationZh:'A区3号道路',locationEn:'Zone A - Road 3',scheduledDate:'2026-05-06',status:'pending',priority:'high',dept:'ZW'},
+  {id:'TASK-2026-042',assetNameZh:'高速立交桥C区',assetNameEn:'Highway Overpass Zone C',staffKey:'LF',locationZh:'第2区高速8号路',locationEn:'District 2 - Highway 8',scheduledDate:'2026-05-05',status:'inprogress',priority:'high',dept:'ZW'},
+  {id:'TASK-2026-043',assetNameZh:'沿海铁塔UT-35',assetNameEn:'Coastal Tower UT-35',staffKey:'WJ',locationZh:'沿海区UT-35号铁塔',locationEn:'Coastal Zone Tower UT-35',scheduledDate:'2026-04-30',status:'overdue',priority:'high',dept:'WJ'},
+  {id:'TASK-2026-044',assetNameZh:'工业园输气管道B2',assetNameEn:'Industrial Park Gas Pipeline B2',staffKey:'CM',locationZh:'工业园区北区B2段',locationEn:'Industrial Park North - B2',scheduledDate:'2026-05-07',status:'pending',priority:'medium',dept:'CM'},
+  {id:'TASK-2026-045',assetNameZh:'变电站T-14',assetNameEn:'Substation T-14',staffKey:'ZW',locationZh:'东部变电站14号',locationEn:'East Substation No.14',scheduledDate:'2026-05-08',status:'pending',priority:'medium',dept:'ZW'},
+  {id:'TASK-2026-046',assetNameZh:'滨河走廊路面',assetNameEn:'Riverside Corridor Road',staffKey:'LY',locationZh:'滨河走廊KM4.2段',locationEn:'Riverside Corridor KM4.2',scheduledDate:'2026-05-04',status:'completed',priority:'medium',dept:'LY'},
+  {id:'TASK-2026-047',assetNameZh:'南环管道7段',assetNameEn:'South Ring Pipeline Seg.7',staffKey:'LF',locationZh:'南部工业区7号管段',locationEn:'South Industrial Zone Seg.7',scheduledDate:'2026-05-09',status:'pending',priority:'low',dept:'CM'},
+  {id:'TASK-2026-048',assetNameZh:'变电站T-07',assetNameEn:'Substation T-07',staffKey:'CM',locationZh:'中央电网12号站',locationEn:'Central Grid Station 12',scheduledDate:'2026-05-03',status:'completed',priority:'low',dept:'CM'},
+  {id:'TASK-2026-049',assetNameZh:'公园路人行天桥',assetNameEn:'Park Road Footbridge',staffKey:'ZW',locationZh:'第3区公园路天桥',locationEn:'District 3 Park Road',scheduledDate:'2026-05-10',status:'pending',priority:'medium',dept:'ZW'},
+  {id:'TASK-2026-050',assetNameZh:'北环管道4段',assetNameEn:'North Ring Pipeline Seg.4',staffKey:'WL',locationZh:'北部工业区4号管段',locationEn:'North Industrial Zone Seg.4',scheduledDate:'2026-05-11',status:'pending',priority:'low',dept:'CM'},
+  {id:'TASK-2026-051',assetNameZh:'输电铁塔UT-22',assetNameEn:'Utility Tower UT-22',staffKey:'HB',locationZh:'第7区输电走廊',locationEn:'District 7 Power Corridor',scheduledDate:'2026-05-06',status:'inprogress',priority:'medium',dept:'WJ'},
+  {id:'TASK-2026-052',assetNameZh:'第4区主干道',assetNameEn:'District 4 Main Road',staffKey:'XH',locationZh:'第4区城市主干道',locationEn:'District 4 Main Road',scheduledDate:'2026-05-07',status:'pending',priority:'low',dept:'LY'},
+  {id:'TASK-2026-053',assetNameZh:'滨河大桥A区',assetNameEn:'Riverside Bridge Zone A',staffKey:'SX',locationZh:'A区3号道路',locationEn:'Zone A - Road 3',scheduledDate:'2026-05-12',status:'pending',priority:'high',dept:'ZW'},
+  {id:'TASK-2026-054',assetNameZh:'高速立交桥C区',assetNameEn:'Highway Overpass Zone C',staffKey:'ZM',locationZh:'第2区高速8号路',locationEn:'District 2 - Highway 8',scheduledDate:'2026-05-04',status:'completed',priority:'high',dept:'ZW'},
+  {id:'TASK-2026-055',assetNameZh:'工业园输气管道B2',assetNameEn:'Industrial Park Gas Pipeline B2',staffKey:'WL',locationZh:'工业园区北区B2段',locationEn:'Industrial Park North - B2',scheduledDate:'2026-05-13',status:'pending',priority:'medium',dept:'CM'},
+  {id:'TASK-2026-056',assetNameZh:'变电站T-07',assetNameEn:'Substation T-07',staffKey:'HB',locationZh:'中央电网12号站',locationEn:'Central Grid Station 12',scheduledDate:'2026-05-08',status:'inprogress',priority:'medium',dept:'WJ'},
+  {id:'TASK-2026-057',assetNameZh:'沿海铁塔UT-35',assetNameEn:'Coastal Tower UT-35',staffKey:'ZW',locationZh:'沿海区UT-35号铁塔',locationEn:'Coastal Zone Tower UT-35',scheduledDate:'2026-05-14',status:'pending',priority:'high',dept:'ZW'},
+  {id:'TASK-2026-058',assetNameZh:'南环管道7段',assetNameEn:'South Ring Pipeline Seg.7',staffKey:'CM',locationZh:'南部工业区7号管段',locationEn:'South Industrial Zone Seg.7',scheduledDate:'2026-05-05',status:'overdue',priority:'medium',dept:'CM'},
+  {id:'TASK-2026-059',assetNameZh:'滨河走廊路面',assetNameEn:'Riverside Corridor Road',staffKey:'LY',locationZh:'滨河走廊KM4.2段',locationEn:'Riverside Corridor KM4.2',scheduledDate:'2026-05-15',status:'pending',priority:'low',dept:'LY'},
+  {id:'TASK-2026-060',assetNameZh:'公园路人行天桥',assetNameEn:'Park Road Footbridge',staffKey:'SX',locationZh:'第3区公园路天桥',locationEn:'District 3 Park Road',scheduledDate:'2026-05-09',status:'completed',priority:'low',dept:'ZW'},
+  {id:'TASK-2026-061',assetNameZh:'变电站T-14',assetNameEn:'Substation T-14',staffKey:'HB',locationZh:'东部变电站14号',locationEn:'East Substation No.14',scheduledDate:'2026-05-16',status:'pending',priority:'medium',dept:'WJ'},
+  {id:'TASK-2026-062',assetNameZh:'北环管道4段',assetNameEn:'North Ring Pipeline Seg.4',staffKey:'WL',locationZh:'北部工业区4号管段',locationEn:'North Industrial Zone Seg.4',scheduledDate:'2026-05-10',status:'inprogress',priority:'low',dept:'CM'},
+];
+
+/* ═══════════════════════════════════════════════════════════
+   REPORTS DATA (Chinese locations)
+═══════════════════════════════════════════════════════════ */
+const INIT_REPORTS=[
+  {id:'RPT-20260428-001',assetId:'AST-001',assetNameZh:'滨河大桥A区',assetNameEn:'Riverside Bridge Zone A',assetTypeZh:'桥梁',assetTypeEn:'Bridge',issueTypeZh:'裂缝',issueTypeEn:'Crack',severity:'high',locationZh:'A区3号道路桥面东侧',locationEn:'Zone A - Road 3, East Side',confidence:0.93,recommendation:{zh:'需要立即维修处理，请在24小时内派遣维修团队。',en:'Immediate repair required. Dispatch maintenance team within 24 hours.'},note:{zh:'东侧支撑梁发现纵向裂缝，长约2.3米。',en:'Longitudinal crack found on east support beam, approx. 2.3m long.'},hasPhoto:true,createdAt:'2026-04-28T09:14:00Z',status:'open',staffKey:'ZW',mapX:30,mapY:35},
+  {id:'RPT-20260427-002',assetId:'AST-006',assetNameZh:'高速立交桥C区',assetNameEn:'Highway Overpass Zone C',assetTypeZh:'桥梁',assetTypeEn:'Bridge',issueTypeZh:'混凝土剥落',issueTypeEn:'Concrete Spalling',severity:'high',locationZh:'第2区高速8号路立交桥底部',locationEn:'District 2 - Highway 8 Overpass Underside',confidence:0.88,recommendation:{zh:'需要立即维修处理，请在24小时内派遣维修团队。',en:'Immediate repair required. Dispatch maintenance team within 24 hours.'},note:{zh:'桥面底部多处混凝土剥落，钢筋外露。',en:'Multiple concrete spalling spots on bridge underside, rebar exposed.'},hasPhoto:true,createdAt:'2026-04-27T14:32:00Z',status:'acknowledged',staffKey:'LF',mapX:45,mapY:70},
+  {id:'RPT-20260425-003',assetId:'AST-002',assetNameZh:'工业园输气管道B2',assetNameEn:'Industrial Park Gas Pipeline B2',assetTypeZh:'管道',assetTypeEn:'Pipeline',issueTypeZh:'腐蚀',issueTypeEn:'Corrosion',severity:'medium',locationZh:'工业园区北区B2管段中部',locationEn:'Industrial Park North - B2 Mid Section',confidence:0.81,recommendation:{zh:'建议尽快安排巡检，请在两周内完成维护计划。',en:'Schedule inspection soon. Complete maintenance plan within 2 weeks.'},note:{zh:'外壁表面腐蚀，未发现活动性泄漏。',en:'Surface corrosion on outer wall. No active leakage detected.'},hasPhoto:false,createdAt:'2026-04-25T11:05:00Z',status:'open',staffKey:'CM',mapX:65,mapY:55},
+  {id:'RPT-20260424-004',assetId:'AST-010',assetNameZh:'沿海铁塔UT-35',assetNameEn:'Coastal Tower UT-35',assetTypeZh:'铁塔',assetTypeEn:'Utility Tower',issueTypeZh:'锈蚀',issueTypeEn:'Rust',severity:'medium',locationZh:'沿海区UT-35号铁塔下部横梁',locationEn:'Coastal Zone Tower UT-35 Lower Crossbeam',confidence:0.85,recommendation:{zh:'建议尽快安排巡检，请在两周内完成维护计划。',en:'Schedule inspection soon. Complete maintenance plan within 2 weeks.'},note:{zh:'下部横梁因海洋环境严重锈蚀。',en:'Lower crossbeam severely rusted due to marine environment.'},hasPhoto:true,createdAt:'2026-04-24T08:47:00Z',status:'open',staffKey:'WJ',mapX:88,mapY:30},
+  {id:'RPT-20260422-005',assetId:'AST-004',assetNameZh:'滨河走廊路面',assetNameEn:'Riverside Corridor Road',assetTypeZh:'道路',assetTypeEn:'Road Surface',issueTypeZh:'坑洼',issueTypeEn:'Pothole',severity:'low',locationZh:'滨河走廊KM4.2段路面',locationEn:'Riverside Corridor KM4.2 Road Surface',confidence:0.79,recommendation:{zh:'建议持续监测，纳入下次定期维护计划。',en:'Continue monitoring. Include in next scheduled maintenance cycle.'},note:{zh:'轻微坑洼，直径约30厘米，无结构性风险。',en:'Minor pothole, approx. 30cm diameter. No structural risk.'},hasPhoto:false,createdAt:'2026-04-22T16:20:00Z',status:'resolved',staffKey:'LY',mapX:25,mapY:60},
+];
+
+const TREND_DATA=[12,18,9,24,15,7,20];
+
+/* ═══════════════════════════════════════════════════════════
+   AUTO-GENERATED DATA CENTER RECORDS
+═══════════════════════════════════════════════════════════ */
+const AI_ZH={types:['桥梁','管道','变压器','道路','铁塔'],issues:{'桥梁':['裂缝','腐蚀','混凝土剥落','伸缩缝损坏','钢筋外露'],'管道':['泄漏','腐蚀','堵塞','接头位移','管壁减薄'],'变压器':['过热','漏油','绝缘损坏','套管裂纹','接头磨损'],'道路':['坑洼','裂缝','沉降','标线褪色','边缘破损'],'铁塔':['锈蚀','螺栓松动','电缆损伤','基础裂缝','倾斜']}};
+const AI_EN={types:['Bridge','Pipeline','Transformer','Road Surface','Utility Tower'],issues:{'Bridge':['Crack','Corrosion','Spalling','Joint Failure','Rebar Exposure'],'Pipeline':['Leakage','Corrosion','Blockage','Joint Displacement','Wall Thinning'],'Transformer':['Overheating','Oil Leak','Insulation Damage','Bushing Crack','Terminal Wear'],'Road Surface':['Pothole','Crack','Settlement','Fading Markings','Edge Damage'],'Utility Tower':['Rust','Loose Bolt','Cable Damage','Foundation Crack','Tilt']}};
+const AI_LOCS_ZH=['A区3号道路','B区2号地块','第4区7号街区','工业园区北区','滨河走廊','中央电网12号站','沿海区UT-35铁塔','北部工业区','东部变电站','第2区高速8号路','C区5号桥梁','南部工业区','第7区输电走廊','第3区公园路'];
+const AI_LOCS_EN=['Zone A - Road 3','Zone B - Block 2','District 4 - Block 7','Industrial Park North','Riverside Corridor','Central Grid Station 12','Coastal Zone Tower UT-35','North Industrial Zone','East Substation','District 2 - Highway 8','Zone C - Bridge 5','South Industrial Zone','District 7 Power Corridor','District 3 Park Road'];
+
+const AI_REASONS_ZH=['基于裂缝形态与历史故障案例匹配识别','图像纹理分析检测到腐蚀特征，与同类案例高度相似','热成像数据显示异常温升，判定为过热风险','结构位移超出阈值，触发自动预警规则','多传感器融合分析，综合判定为高风险状态','历史维护记录与当前检测数据交叉验证确认','AI视觉模型识别到典型混凝土剥落特征','振动频谱分析显示螺栓松动特征'];
+const AI_REASONS_EN=['Crack morphology matched against historical failure case database','Corrosion features detected via image texture analysis, high similarity to known cases','Thermal imaging shows abnormal temperature rise, classified as overheating risk','Structural displacement exceeded threshold, triggering automated alert rule','Multi-sensor fusion analysis yielded high-risk composite score','Cross-validated against historical maintenance records and current sensor data','AI vision model identified typical concrete spalling pattern','Vibration spectrum analysis indicates loose bolt signature'];
+const LAYERS=['raw','cleaned','structured'];
+const DECISIONS_BY_SEV={high:'repair',medium:'dispatch',low:'monitor'};
+
+function generateAutoData(){
+  const count=35;
+  const now=new Date();
+  return Array.from({length:count},(_,i)=>{
+    const idx=Math.floor(Math.random()*5);
+    const typeZh=AI_ZH.types[idx],typeEn=AI_EN.types[idx];
+    const issuesZh=AI_ZH.issues[typeZh],issuesEn=AI_EN.issues[typeEn];
+    const iIdx=Math.floor(Math.random()*issuesZh.length);
+    const locIdx=Math.floor(Math.random()*AI_LOCS_ZH.length);
+    const conf=parseFloat((0.60+Math.random()*0.39).toFixed(2));
+    const r=Math.random();
+    const sev=r<0.25?'low':r<0.60?'medium':'high';
+    const d=new Date(now.getTime()-Math.random()*30*24*3600*1000);
+    const p=n=>String(n).padStart(2,'0');
+    const id=`DC-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${String(i+1).padStart(3,'0')}`;
+    const SOURCES=['field','device','aerial','legacy'];
+    const source=SOURCES[Math.floor(Math.random()*4)];
+    const rIdx=Math.floor(Math.random()*AI_REASONS_ZH.length);
+    const layer=LAYERS[Math.floor(Math.random()*3)];
+    const ageHours=(now-d)/3600000;
+    const freshness=Math.max(0,Math.min(100,Math.round(100-ageHours/7.2)));
+    const completeness=Math.round(70+Math.random()*30);
+    const qualityConf=Math.round(conf*100);
+    return{id,assetTypeZh:typeZh,assetTypeEn:typeEn,issueTypeZh:issuesZh[iIdx],issueTypeEn:issuesEn[iIdx],
+      locationZh:AI_LOCS_ZH[locIdx],locationEn:AI_LOCS_EN[locIdx],severity:sev,confidence:conf,
+      uploadTime:d.toISOString(),source,layer,
+      quality:{completeness,confidence:qualityConf,freshness},
+      aiReasonZh:AI_REASONS_ZH[rIdx],aiReasonEn:AI_REASONS_EN[rIdx],
+      decision:DECISIONS_BY_SEV[sev]};
+  });
+}
+
+function aiAnalyze(){
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      const idx=Math.floor(Math.random()*5);
+      const typeZh=AI_ZH.types[idx],typeEn=AI_EN.types[idx];
+      const issuesZh=AI_ZH.issues[typeZh],issuesEn=AI_EN.issues[typeEn];
+      const iIdx=Math.floor(Math.random()*issuesZh.length);
+      const locIdx=Math.floor(Math.random()*AI_LOCS_ZH.length);
+      const conf=parseFloat((0.78+Math.random()*0.19).toFixed(2));
+      const r=Math.random();
+      const sev=r<0.20?'low':r<0.58?'medium':'high';
+      resolve({assetTypeZh:typeZh,assetTypeEn:typeEn,issueTypeZh:issuesZh[iIdx],issueTypeEn:issuesEn[iIdx],severity:sev,locationZh:AI_LOCS_ZH[locIdx],locationEn:AI_LOCS_EN[locIdx],confidence:conf});
+    },1800+Math.random()*700);
+  });
+}
+
+function genReportId(){
+  const d=new Date(),p=n=>String(n).padStart(2,'0');
+  return`RPT-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${String(Math.floor(Math.random()*900)+100)}`;
+}
+function genDCId(){
+  const d=new Date(),p=n=>String(n).padStart(2,'0');
+  return`DC-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${String(Math.floor(Math.random()*900)+100)}`;
+}
+function fmtDate(iso){return new Date(iso).toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit'});}
+function fmtDateTime(iso){const d=new Date(iso);return`${fmtDate(iso)} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+
+/* ═══════════════════════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════════════════════ */
+function Badge({type,tip}){
+  const {t}=useContext(LangCtx);
+  const label=t.badges[type]||type;
+  if(tip){
+    return <span className={`badge b-${type} has-tip`} data-tip={tip}>{label}</span>;
+  }
+  return <span className={`badge b-${type}`}>{label}</span>;
+}
+
+function StatCard({labelKey,value,sub,borderColor,iconBg,icon}){
+  const {t}=useContext(LangCtx);
+  return(
+    <div className="card stat-card p-5" style={{borderLeftColor:borderColor}}>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{t.dashboard.stats[labelKey]}</p>
+          <p className="text-2xl font-bold text-slate-900">{value}</p>
+          <p className="text-xs text-slate-400 mt-1">{sub}</p>
+        </div>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{background:iconBg}}>{icon}</div>
+      </div>
+    </div>
+  );
+}
+
+function Toast({msg,onDone}){
+  useEffect(()=>{const t=setTimeout(onDone,3200);return()=>clearTimeout(t);},[]);
+  return <div className="toast slide-down"><span style={{color:'#4ADE80'}}>✓</span>{msg}</div>;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STAFF MODAL
+═══════════════════════════════════════════════════════════ */
+function StaffModal({staffKey,onClose}){
+  const {t,lang}=useContext(LangCtx);
+  const s=STAFF[staffKey];
+  if(!s)return null;
+  const sm=t.staffModal;
+  return(
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" style={{maxWidth:400}} onClick={e=>e.stopPropagation()}>
+        <div className="px-6 py-5 flex items-center justify-between" style={{borderBottom:'1px solid #F1F5F9'}}>
+          <h3 className="text-base font-bold text-slate-900">{sm.title}</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-sm font-bold hover:bg-slate-200">✕</button>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0" style={{background:'linear-gradient(135deg,#2563EB,#7C3AED)'}}>
+              {(lang==='zh'?s.nameZh:s.nameEn).charAt(0)}
+            </div>
+            <div>
+              <p className="text-lg font-bold text-slate-900">{lang==='zh'?s.nameZh:s.nameEn}</p>
+              <p className="text-sm text-slate-500">{lang==='zh'?s.positionZh:s.positionEn}</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {[
+              {k:sm.fields.empId,v:s.empId},
+              {k:sm.fields.phone,v:s.phone},
+              {k:sm.fields.position,v:lang==='zh'?s.positionZh:s.positionEn},
+              {k:sm.fields.dept,v:lang==='zh'?s.deptZh:s.deptEn},
+              {k:sm.fields.company,v:lang==='zh'?s.companyZh:s.companyEn},
+            ].map(({k,v})=>(
+              <div key={k} className="flex items-start gap-3 p-3 rounded-lg" style={{background:'#F8FAFC',border:'1px solid #F1F5F9'}}>
+                <span className="text-xs font-semibold text-slate-400 w-20 flex-shrink-0 pt-0.5">{k}</span>
+                <span className="text-sm font-medium text-slate-800">{v}</span>
+              </div>
+            ))}
+          </div>
+          <button className="btn-ghost w-full mt-5 py-2.5 text-sm justify-center" onClick={onClose}>{sm.close}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NOTIFICATION PANEL
+═══════════════════════════════════════════════════════════ */
+function NotifPanel({onClose}){
+  const {t}=useContext(LangCtx);
+  const n=t.notif;
+  const [items,setItems]=useState(n.items);
+  const unreadCount=items.filter(i=>i.unread).length;
+  function markAll(){setItems(prev=>prev.map(i=>({...i,unread:false})));}
+  const typeClass={alert:'notif-alert',task:'notif-task',system:'notif-system',ai:'notif-ai',msg:'notif-system'};
+  const typeBg={alert:'#FFF5F5',task:'#FFFBEB',system:'#EFF6FF',ai:'#F5F3FF',msg:'#EFF6FF'};
+  return(
+    <div className="notif-panel slide-down">
+      <div className="px-4 py-3 flex items-center justify-between" style={{borderBottom:'1px solid #F1F5F9'}}>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-slate-900">{n.title}</span>
+          {unreadCount>0&&<span className="w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">{unreadCount}</span>}
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="text-xs text-blue-600 font-semibold hover:text-blue-800" onClick={markAll}>{n.markAll}</button>
+          <button className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold hover:bg-slate-200" onClick={onClose}>✕</button>
+        </div>
+      </div>
+      <div className="py-1">
+        {items.map(item=>(
+          <div key={item.id}
+            className={`px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-slate-50 transition-colors ${typeClass[item.type]||''}`}
+            style={{borderBottom:'1px solid #F8FAFC',background:item.unread?(typeBg[item.type]||'#FAFBFF'):'#fff'}}
+            onClick={()=>setItems(prev=>prev.map(i=>i.id===item.id?{...i,unread:false}:i))}>
+            <span className="text-lg flex-shrink-0 mt-0.5">{item.icon}</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-bold text-slate-800">{item.title}</p>
+                <span className="text-xs text-slate-400 flex-shrink-0">{item.time}</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{item.body}</p>
+            </div>
+            {item.unread&&<div className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{background:item.type==='alert'?'#EF4444':item.type==='task'?'#F59E0B':item.type==='ai'?'#8B5CF6':'#3B82F6'}}/>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════════════ */
+const NAV_ICONS={dashboard:'⊞',upload:'⬆',reports:'≡',datacenter:'⊟',profile:'👤'};
+
+function Sidebar({page,onNav,role,onRoleChange}){
+  const {t,lang}=useContext(LangCtx);
+  const roles=['inspector','supervisor','manager'];
+  const roleColors={inspector:'#10B981',supervisor:'#F59E0B',manager:'#EF4444'};
+  return(
+    <div className="sidebar">
+      <div className="px-5 py-5" style={{borderBottom:'1px solid rgba(255,255,255,.08)'}}>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-lg font-bold flex-shrink-0" style={{background:'#2563EB'}}>⛨</div>
+          <div>
+            <p className="text-white font-bold text-sm leading-tight">{t.appName}</p>
+            <p className="text-xs leading-tight" style={{color:'#64748B'}}>{t.appSub}</p>
+          </div>
+        </div>
+      </div>
+      <nav className="flex-1 px-3 py-4">
+        <p className="text-xs font-semibold uppercase tracking-widest px-3 mb-3" style={{color:'#475569'}}>Menu</p>
+        {Object.keys(t.nav).map(key=>(
+          <button key={key} onClick={()=>onNav(key)} className={`nav-btn${page===key?' active':''}`}>
+            <span style={{fontSize:16,width:20,textAlign:'center'}}>{NAV_ICONS[key]}</span>
+            {t.nav[key]}
+          </button>
+        ))}
+      </nav>
+      <div className="px-3 mb-3">
+        <div className="px-3 py-3 rounded-lg" style={{background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.08)'}}>
+          <p className="text-xs font-semibold text-slate-400 mb-2">{t.roleSwitch}</p>
+          <div className="flex flex-col gap-1">
+            {roles.map(r=>(
+              <button key={r} onClick={()=>onRoleChange(r)}
+                className="role-btn text-left"
+                style={role===r?{background:roleColors[r],color:'#fff',borderColor:roleColors[r]}:{background:'transparent',color:'#94A3B8',borderColor:'rgba(255,255,255,.1)'}}>
+                {role===r?'● ':''}{t.roles[r]}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="px-3 mb-3">
+        <div className="px-4 py-3 rounded-lg" style={{background:'rgba(37,99,235,.15)',border:'1px solid rgba(37,99,235,.3)'}}>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-green-400 pulse flex-shrink-0"></span>
+            <span className="text-xs font-semibold text-green-400">{t.ai.online}</span>
+          </div>
+          <p className="text-xs" style={{color:'#64748B'}}>{t.ai.version}</p>
+        </div>
+      </div>
+      <div className="px-4 py-4" style={{borderTop:'1px solid rgba(255,255,255,.08)'}}>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{background:'#2563EB'}}>
+            {t.user.name.charAt(0)}
+          </div>
+          <div className="min-w-0">
+            <p className="text-white text-sm font-medium truncate">{t.user.name}</p>
+            <p className="text-xs truncate" style={{color:'#64748B'}}>{t.user.role}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════════════════════ */
+function TopBar({page,onLangToggle,onSearch}){
+  const {t,lang}=useContext(LangCtx);
+  const pageT=t[page]||t.dashboard;
+  const today=new Date().toLocaleDateString(lang==='zh'?'zh-CN':'en-US',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  const [showNotif,setShowNotif]=useState(false);
+  const [unread,setUnread]=useState(3);
+  // Count by type for colored dot
+  const alertCount=t.notif.items.filter(i=>i.unread&&i.type==='alert').length;
+  return(
+    <div className="flex items-center justify-between px-6 flex-shrink-0 relative" style={{height:64,background:'#fff',borderBottom:'1px solid #E2E8F0'}}>
+      <div>
+        <h1 className="text-lg font-bold text-slate-900">{pageT.title}</h1>
+        <p className="text-xs text-slate-400">{pageT.sub}</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-slate-400 hidden lg:block">{today}</span>
+        {/* Global search button */}
+        <button onClick={onSearch}
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-400 font-medium transition-colors"
+          style={{background:'#F8FAFC',border:'1px solid #E2E8F0'}}>
+          <span>🔍</span>
+          <span>{lang==='zh'?'全局搜索':'Search'}</span>
+          <span className="text-slate-300 text-xs">⌘K</span>
+        </button>
+        <button className="lang-btn" onClick={onLangToggle}
+          style={{background:'#F1F5F9',border:'1px solid #E2E8F0',borderRadius:20,color:'#374151',cursor:'pointer',fontSize:12,fontWeight:700,padding:'5px 14px',transition:'all .15s'}}>
+          🌐 {t.langBtn}
+        </button>
+        <div className="relative">
+          <button className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-sm hover:bg-slate-200 transition-colors"
+            onClick={()=>{setShowNotif(v=>!v);setUnread(0);}}>🔔</button>
+          {unread>0&&(
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-white text-xs flex items-center justify-center font-bold"
+              style={{background:alertCount>0?'#EF4444':'#3B82F6'}}>{unread}</span>
+          )}
+          {showNotif&&<NotifPanel onClose={()=>setShowNotif(false)}/>}
+        </div>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{background:'#2563EB'}}>{t.user.name.charAt(0)}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD PAGE
+═══════════════════════════════════════════════════════════ */
+const TREND_7D_HIGH=[3,5,4,7,6,4,8];
+const TREND_7D_MED=[5,6,8,5,7,6,9];
+const TREND_7D_LOW=[4,3,5,4,3,5,3];
+const TREND_30D=[12,18,9,24,15,7,20,14,11,17,22,8,16,13,19,25,10,18,14,21,9,15,12,20,17,11,23,16,14,18];
+const REGION_RISK=[
+  {nameZh:'A区',nameEn:'Zone A',score:87,count:3},
+  {nameZh:'B区',nameEn:'Zone B',score:62,count:2},
+  {nameZh:'C区',nameEn:'Zone C',score:91,count:4},
+  {nameZh:'工业园',nameEn:'Ind. Park',score:55,count:2},
+  {nameZh:'沿海区',nameEn:'Coastal',score:79,count:1},
+];
+
+function DashboardPage({role}){
+  const {t,lang}=useContext(LangCtx);
+  const d=t.dashboard;
+  const [staffModal,setStaffModal]=useState(null);
+  const [trendMode,setTrendMode]=useState('7d');
+
+  const tasks=role==='inspector'
+    ?ALL_TASKS.filter(tk=>tk.staffKey==='ZW')
+    :role==='supervisor'
+    ?ALL_TASKS.filter(tk=>['ZW','LF','SX','ZM'].includes(tk.staffKey))
+    :ALL_TASKS;
+
+  const total=ASSETS.length;
+  const highRisk=ASSETS.filter(a=>a.status==='critical').length;
+  const pending=tasks.filter(tk=>tk.status==='pending'||tk.status==='overdue').length;
+  const completed=tasks.filter(tk=>tk.status==='completed').length;
+  const taskCompletion=tasks.length>0?Math.round(completed/tasks.length*100):0;
+  const normalC=ASSETS.filter(a=>a.status==='normal').length;
+  const warnC=ASSETS.filter(a=>a.status==='warning').length;
+  const critC=ASSETS.filter(a=>a.status==='critical').length;
+  const alerts=ASSETS.filter(a=>a.status!=='normal').sort((a,b)=>b.riskScore-a.riskScore).slice(0,4);
+
+  const trendData=trendMode==='7d'
+    ?TREND_7D_HIGH.map((h,i)=>({h,m:TREND_7D_MED[i],l:TREND_7D_LOW[i]}))
+    :TREND_30D.slice(0,14).map((v,i)=>({h:Math.round(v*0.4),m:Math.round(v*0.35),l:Math.round(v*0.25)}));
+  const maxTrend=Math.max(...trendData.map(d=>d.h+d.m+d.l));
+  const labels=trendMode==='7d'?d.trend.labels:TREND_30D.slice(0,14).map((_,i)=>String(i+1));
+
+  return(
+    <div className="p-6 space-y-6">
+      {/* Role note */}
+      <div className={`rounded-lg px-4 py-2.5 flex items-center gap-2 role-note-${role}`} style={{border:'1px solid'}}>
+        <span className="text-sm">ℹ</span>
+        <span className="text-xs font-medium">{d.roleNote[role]}</span>
+      </div>
+
+      {/* KPI Stats — 4 primary */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="card stat-card p-5" style={{borderLeftColor:'#3B82F6'}}>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{d.stats.total}</p>
+              <p className="text-2xl font-bold text-slate-900">{total}</p>
+              <p className="text-xs text-slate-400 mt-1">{lang==='zh'?'受监控基础设施':'Monitored infrastructure'}</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{background:'#EFF6FF'}}>🏗️</div>
+          </div>
+        </div>
+        <div className="card stat-card p-5" style={{borderLeftColor:'#EF4444'}}>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{d.stats.highRisk}</p>
+              <p className="text-2xl font-bold text-slate-900">{highRisk}</p>
+              <div className="flex items-center gap-1 mt-1">
+                <span className="kpi-delta-up">↑ +1</span>
+                <span className="text-xs text-slate-400">{lang==='zh'?'较上周':'vs last week'}</span>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{background:'#FEF2F2'}}>⚠️</div>
+          </div>
+        </div>
+        <div className="card stat-card p-5" style={{borderLeftColor:'#10B981'}}>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{d.stats.accuracy}</p>
+              <p className="text-2xl font-bold text-slate-900">94.2%</p>
+              <div className="flex items-center gap-1 mt-1">
+                <span className="kpi-delta-up">↑ +1.3%</span>
+                <span className="text-xs text-slate-400">{lang==='zh'?'30天均值':'30-day avg'}</span>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{background:'#F0FDF4'}}>🤖</div>
+          </div>
+        </div>
+        <div className="card stat-card p-5" style={{borderLeftColor:'#F59E0B'}}>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{d.stats.taskCompletion}</p>
+              <p className="text-2xl font-bold text-slate-900">{taskCompletion}%</p>
+              <p className="text-xs text-slate-400 mt-1">{pending} {lang==='zh'?'待处理':'pending'}</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{background:'#FFFBEB'}}>📋</div>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Decision Card */}
+      <div className="card p-5" style={{border:'1px solid #BFDBFE',background:'linear-gradient(135deg,#EFF6FF 0%,#F0F9FF 100%)'}}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg">🤖</span>
+          <h2 className="text-sm font-semibold text-blue-900">{d.aiDecision.title}</h2>
+          <span className="ml-auto text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 font-semibold">{d.aiDecision.live}</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {critC>0&&(
+            <div className="flex items-start gap-2 p-3 rounded-lg" style={{background:'#FEF2F2',border:'1px solid #FECACA'}}>
+              <span className="text-sm flex-shrink-0">🔴</span>
+              <p className="text-xs text-red-800 leading-relaxed"><span className="font-bold">{critC}</span> {d.aiDecision.criticalTip}</p>
+            </div>
+          )}
+          {tasks.filter(tk=>tk.status==='overdue').length>0&&(
+            <div className="flex items-start gap-2 p-3 rounded-lg" style={{background:'#FFFBEB',border:'1px solid #FDE68A'}}>
+              <span className="text-sm flex-shrink-0">🟡</span>
+              <p className="text-xs text-amber-800 leading-relaxed"><span className="font-bold">{tasks.filter(tk=>tk.status==='overdue').length}</span> {d.aiDecision.overdueTip}</p>
+            </div>
+          )}
+          <div className="flex items-start gap-2 p-3 rounded-lg" style={{background:'#F0FDF4',border:'1px solid #A7F3D0'}}>
+            <span className="text-sm flex-shrink-0">🟢</span>
+            <p className="text-xs text-green-800 leading-relaxed">{d.aiDecision.completionTip} <span className="font-bold">{taskCompletion}%</span>，{lang==='zh'?`整体运营状态${taskCompletion>=70?d.aiDecision.goodStatus:d.aiDecision.needsAttention}。`:`Overall: ${taskCompletion>=70?d.aiDecision.goodStatus:d.aiDecision.needsAttention}.`}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Task table */}
+        <div className="lg:col-span-3 card">
+          <div className="px-5 py-4 flex items-center justify-between" style={{borderBottom:'1px solid #F1F5F9'}}>
+            <div>
+              <h2 className="text-sm font-semibold text-slate-900">{d.taskTable.title}</h2>
+              <p className="text-xs text-slate-400 mt-0.5">{d.taskTable.sub}</p>
+            </div>
+            <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">{tasks.length} {d.taskTable.total}</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{background:'#F8FAFC',borderBottom:'1px solid #F1F5F9'}}>
+                  {d.taskTable.cols.map(h=>(
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tasks.map((task,i)=>{
+                  const s=STAFF[task.staffKey];
+                  const name=s?(lang==='zh'?s.nameZh:s.nameEn):'—';
+                  return(
+                    <tr key={task.id} className="tr" style={{borderBottom:'1px solid #F8FAFC',background:i%2===0?'#fff':'#FAFBFC'}}>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-500 whitespace-nowrap">{task.id}</td>
+                      <td className="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">{lang==='zh'?task.assetNameZh:task.assetNameEn}</td>
+                      <td className="px-4 py-3"><Badge type={task.status}/></td>
+                      <td className="px-4 py-3"><Badge type={task.priority}/></td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <button className="assignee-link text-xs" onClick={()=>setStaffModal(task.staffKey)}>{name}</button>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{task.scheduledDate}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Asset status */}
+          <div className="card p-5">
+            <h2 className="text-sm font-semibold text-slate-900 mb-4">{d.statusOverview.title}</h2>
+            {[
+              {label:d.statusOverview.normal,count:normalC,color:'#10B981',textColor:'#065F46'},
+              {label:d.statusOverview.warning,count:warnC,color:'#F59E0B',textColor:'#92400E'},
+              {label:d.statusOverview.critical,count:critC,color:'#EF4444',textColor:'#B91C1C'},
+            ].map(({label,count,color,textColor})=>(
+              <div key={label} className="mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs font-medium text-slate-600">{label}</span>
+                  <span className="text-xs font-bold" style={{color:textColor}}>{count}<span className="text-slate-400 font-normal"> / {total}</span></span>
+                </div>
+                <div className="progress"><div className="progress-fill" style={{width:`${(count/total)*100}%`,background:color}}/></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Risk alerts */}
+          <div className="card p-5">
+            <h2 className="text-sm font-semibold text-slate-900 mb-3">{d.alerts.title}</h2>
+            <div className="space-y-2">
+              {alerts.map(a=>(
+                <div key={a.id} className="flex items-center gap-3 p-3 rounded-lg" style={{background:'#F8FAFC',border:'1px solid #F1F5F9'}}>
+                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:a.status==='critical'?'#EF4444':'#F59E0B'}}/>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-800 truncate">{lang==='zh'?a.nameZh:a.nameEn}</p>
+                    <p className="text-xs text-slate-400">{lang==='zh'?a.locationZh:a.locationEn} · {d.alerts.riskVal} {a.riskScore}</p>
+                  </div>
+                  <Badge type={a.status}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Trend analysis + Region risk */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Multi-series trend chart */}
+        <div className="lg:col-span-2 card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-slate-900">{d.trend.title}</h2>
+            <div className="flex gap-1">
+              {['7d','30d'].map(m=>(
+                <button key={m} onClick={()=>setTrendMode(m)}
+                  className="px-3 py-1 rounded text-xs font-semibold transition-all"
+                  style={trendMode===m?{background:'#2563EB',color:'#fff'}:{background:'#F1F5F9',color:'#64748B'}}>
+                  {m==='7d'?d.trend.series7d:d.trend.series30d}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Legend */}
+          <div className="flex gap-4 mb-3">
+            {[{k:'high',c:'#EF4444'},{k:'medium',c:'#F59E0B'},{k:'low',c:'#10B981'}].map(({k,c})=>(
+              <div key={k} className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm" style={{background:c}}/>
+                <span className="text-xs text-slate-500">{d.trend[k]}</span>
+              </div>
+            ))}
+          </div>
+          {/* Stacked bar chart */}
+          <div className="flex items-end gap-1" style={{height:80}}>
+            {trendData.map((v,i)=>{
+              const total=v.h+v.m+v.l||1;
+              return(
+                <div key={i} className="flex-1 flex flex-col justify-end" style={{height:'100%'}}>
+                  <div style={{height:`${(v.h/maxTrend)*100}%`,background:'#EF4444',borderRadius:'2px 2px 0 0',minHeight:v.h>0?2:0}}/>
+                  <div style={{height:`${(v.m/maxTrend)*100}%`,background:'#F59E0B',minHeight:v.m>0?2:0}}/>
+                  <div style={{height:`${(v.l/maxTrend)*100}%`,background:'#10B981',minHeight:v.l>0?2:0}}/>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-1 mt-2">
+            {labels.map((l,i)=>(
+              <div key={i} className="flex-1 text-center text-xs text-slate-400" style={{minWidth:0,fontSize:10}}>{l}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Region risk distribution */}
+        <div className="card p-5">
+          <h2 className="text-sm font-semibold text-slate-900 mb-4">{d.regionRisk.title}</h2>
+          <div className="space-y-3">
+            {REGION_RISK.map(r=>{
+              const color=r.score>=80?'#EF4444':r.score>=60?'#F59E0B':'#10B981';
+              return(
+                <div key={r.nameZh}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-slate-700">{lang==='zh'?r.nameZh:r.nameEn}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400">{r.count}{lang==='zh'?'处':'pts'}</span>
+                      <span className="text-xs font-bold" style={{color}}>{r.score}</span>
+                    </div>
+                  </div>
+                  <div className="progress">
+                    <div className="progress-fill" style={{width:`${r.score}%`,background:color}}/>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {staffModal&&<StaffModal staffKey={staffModal} onClose={()=>setStaffModal(null)}/>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UPLOAD PAGE
+═══════════════════════════════════════════════════════════ */
+function UploadPage({onReportCreated}){
+  const {t,lang}=useContext(LangCtx);
+  const u=t.upload;
+  const [file,setFile]=useState(null);
+  const [imgUrl,setImgUrl]=useState(null);
+  const [desc,setDesc]=useState('');
+  const [state,setState]=useState('idle');
+  const [result,setResult]=useState(null);
+  const [dzActive,setDzActive]=useState(false);
+  const [locState,setLocState]=useState('none'); // none | getting | ok | fail
+  const [location,setLocation]=useState(null);
+  const fileRef=useRef();
+
+  function getMockLoc(){
+    const addrs=u.loc.mockAddr;
+    const idx=Math.floor(Math.random()*addrs.length);
+    return{latitude:+(30+Math.random()*10).toFixed(6),longitude:+(110+Math.random()*20).toFixed(6),address:addrs[idx],isMock:true};
+  }
+  function handleGetLocation(){
+    setLocState('getting');setLocation(null);
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos=>{
+          const addrs=u.loc.mockAddr;
+          setLocation({latitude:+pos.coords.latitude.toFixed(6),longitude:+pos.coords.longitude.toFixed(6),address:addrs[Math.floor(Math.random()*addrs.length)],isMock:false});
+          setLocState('ok');
+        },
+        ()=>{setLocation(getMockLoc());setLocState('fail');},
+        {timeout:6000}
+      );
+    }else{setLocation(getMockLoc());setLocState('fail');}
+  }
+
+  function handleFile(f){
+    if(!f||!f.type.startsWith('image/'))return;
+    setFile(f);setImgUrl(URL.createObjectURL(f));setState('idle');setResult(null);
+  }
+  async function handleAnalyze(){
+    if(!file)return;
+    setState('analyzing');
+    const r=await aiAnalyze();
+    setResult(r);setState('done');
+  }
+  function handleGenReport(){
+    const sev=result.severity;
+    const report={
+      id:genReportId(),assetId:'AST-NEW',
+      assetNameZh:result.assetTypeZh+'巡检点',assetNameEn:result.assetTypeEn+' Inspection Point',
+      assetTypeZh:result.assetTypeZh,assetTypeEn:result.assetTypeEn,
+      issueTypeZh:result.issueTypeZh,issueTypeEn:result.issueTypeEn,
+      severity:sev,locationZh:result.locationZh,locationEn:result.locationEn,confidence:result.confidence,
+      recommendation:{zh:t.rec[sev],en:I18N.en.rec[sev]},
+      note:{zh:desc||'（无备注）',en:desc||'(No notes)'},
+      imageUrl:imgUrl,hasPhoto:!!imgUrl,createdAt:new Date().toISOString(),status:'open',staffKey:'ZW',
+      mapX:20+Math.random()*60,mapY:20+Math.random()*60,
+      gpsLocation:location||null,
+    };
+    onReportCreated(report);
+  }
+  const sevColor={high:'#EF4444',medium:'#F59E0B',low:'#10B981'};
+
+  return(
+    <div className="p-6">
+      <div className="max-w-2xl mx-auto space-y-5">
+        <div className="rounded-xl p-4 flex items-start gap-3" style={{background:'#EFF6FF',border:'1px solid #BFDBFE'}}>
+          <span className="text-blue-500 text-lg flex-shrink-0">🤖</span>
+          <div>
+            <p className="text-sm font-semibold text-blue-900">{u.banner.title}</p>
+            <p className="text-xs text-blue-700 mt-0.5">{u.banner.desc}</p>
+          </div>
+        </div>
+        <div className="card p-6 space-y-5">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</span>
+              <span className="text-sm font-semibold text-slate-800">{u.step1}</span>
+            </div>
+            {!imgUrl?(
+              <div className={`drop-zone p-8${dzActive?' dz-active':''}`}
+                onClick={()=>fileRef.current.click()}
+                onDragOver={e=>{e.preventDefault();setDzActive(true);}}
+                onDragLeave={()=>setDzActive(false)}
+                onDrop={e=>{e.preventDefault();setDzActive(false);handleFile(e.dataTransfer.files[0]);}}>
+                <div className="text-4xl mb-3">📷</div>
+                <p className="text-sm font-medium text-slate-600">{u.dropzone.main}</p>
+                <p className="text-xs text-slate-400 mt-1">{u.dropzone.sub}</p>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e=>handleFile(e.target.files[0])}/>
+              </div>
+            ):(
+              <div className="relative rounded-xl overflow-hidden" style={{border:'1px solid #E2E8F0'}}>
+                <img src={imgUrl} alt="preview" className="w-full object-cover" style={{maxHeight:240}}/>
+                <button onClick={()=>{setFile(null);setImgUrl(null);setState('idle');setResult(null);}}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white shadow flex items-center justify-center text-slate-500 text-sm font-bold"
+                  style={{border:'1px solid #E2E8F0'}}>✕</button>
+                <div className="absolute bottom-2 left-2 bg-white rounded-lg px-3 py-1 text-xs font-medium text-slate-700 shadow" style={{border:'1px solid #E2E8F0'}}>📎 {file.name}</div>
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</span>
+              <span className="text-sm font-semibold text-slate-800">{u.step2} <span className="text-slate-400 font-normal">{u.step2opt}</span></span>
+            </div>
+            <div className="relative">
+              <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder={u.placeholder}
+                className="w-full text-sm text-slate-700 rounded-lg p-3 resize-none"
+                style={{border:'1px solid #E2E8F0',outline:'none',minHeight:90,lineHeight:1.6}}
+                onFocus={e=>e.target.style.borderColor='#3B82F6'}
+                onBlur={e=>e.target.style.borderColor='#E2E8F0'}/>
+              <button className="absolute bottom-3 right-3 btn-ghost text-xs px-3 py-1.5">{u.voiceBtn}</button>
+            </div>
+          </div>
+          {/* ── Step 3: Location ── */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <span className="text-sm font-semibold text-slate-800">{u.step3} <span className="text-slate-400 font-normal">{u.step3opt}</span></span>
+            </div>
+            <div className="rounded-xl overflow-hidden" style={{border:'1px solid #E2E8F0'}}>
+              {/* Status bar */}
+              <div className="flex items-center justify-between px-4 py-3" style={{background: locState==='ok'?'#F0FDF4': locState==='fail'?'#FFFBEB':'#F8FAFC', borderBottom:'1px solid #E2E8F0'}}>
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{locState==='ok'?'✅': locState==='fail'?'⚠️': locState==='getting'?'⏳':'📍'}</span>
+                  <span className="text-xs font-semibold" style={{color: locState==='ok'?'#16A34A': locState==='fail'?'#D97706':'#64748B'}}>
+                    {locState==='none'&&u.loc.statusNone}
+                    {locState==='getting'&&u.loc.getting}
+                    {locState==='ok'&&u.loc.statusOk}
+                    {locState==='fail'&&u.loc.statusFail}
+                  </span>
+                </div>
+                <button onClick={handleGetLocation} disabled={locState==='getting'}
+                  className="btn-ghost text-xs px-3 py-1.5" style={{fontSize:12}}>
+                  {locState==='none'||locState==='fail'?u.loc.getBtn: locState==='getting'?u.loc.getting:u.loc.regetBtn}
+                </button>
+              </div>
+              {/* Location data */}
+              {location&&(
+                <div className="p-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg p-3" style={{background:'#F8FAFC',border:'1px solid #E2E8F0'}}>
+                      <p className="text-xs text-slate-400 mb-1">{u.loc.lat}</p>
+                      <p className="text-sm font-mono font-semibold text-slate-800">{location.latitude}</p>
+                    </div>
+                    <div className="rounded-lg p-3" style={{background:'#F8FAFC',border:'1px solid #E2E8F0'}}>
+                      <p className="text-xs text-slate-400 mb-1">{u.loc.lng}</p>
+                      <p className="text-sm font-mono font-semibold text-slate-800">{location.longitude}</p>
+                    </div>
+                  </div>
+                  <div className="rounded-lg p-3" style={{background:'#EFF6FF',border:'1px solid #BFDBFE'}}>
+                    <p className="text-xs text-blue-500 mb-1">📍 {u.loc.addr}</p>
+                    <p className="text-sm font-medium text-slate-800">{location.address}</p>
+                  </div>
+                  <p className="text-xs text-slate-400">{u.loc.tip}</p>
+                </div>
+              )}
+              {locState==='none'&&(
+                <div className="px-4 py-5 text-center">
+                  <p className="text-xs text-slate-400">{u.loc.tip}</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <button className="btn-primary w-full py-3 text-sm" disabled={!file||state==='analyzing'} onClick={handleAnalyze}>
+            {state==='analyzing'?<><span className="spinner">⟳</span> {u.analyzingBtn}</>:<>{u.analyzeBtn}</>}
+          </button>
+        </div>
+        {state==='analyzing'&&(
+          <div className="card p-8 text-center fade-up">
+            <div className="text-4xl spinner inline-block mb-4">⟳</div>
+            <p className="text-sm font-semibold text-slate-700">{u.analyzing.title}</p>
+            <p className="text-xs text-slate-400 mt-1">{u.analyzing.sub}</p>
+            <div className="mt-4 space-y-2 text-xs text-slate-400">
+              {u.analyzing.steps.map((s,i)=>(
+                <div key={i} className="flex items-center gap-2 justify-center"><span className="spinner text-blue-400">⟳</span>{s}</div>
+              ))}
+            </div>
+          </div>
+        )}
+        {state==='done'&&result&&(
+          <div className="ai-card p-6 fade-up">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-green-500 text-lg">✓</span>
+                <span className="text-sm font-bold text-slate-900">{u.result.title}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500">{u.result.confidence}</span>
+                <span className="text-sm font-bold text-blue-700">{(result.confidence*100).toFixed(0)}%</span>
+              </div>
+            </div>
+            <div className="conf-bar mb-5"><div className="conf-fill" style={{width:`${result.confidence*100}%`}}/></div>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {[
+                {label:u.result.assetType,value:lang==='zh'?result.assetTypeZh:result.assetTypeEn,icon:'🏗️'},
+                {label:u.result.issueType,value:lang==='zh'?result.issueTypeZh:result.issueTypeEn,icon:'🔍'},
+                {label:u.result.location,value:lang==='zh'?result.locationZh:result.locationEn,icon:'📍'},
+                {label:u.result.severity,value:<Badge type={result.severity}/>,icon:'⚠️'},
+              ].map(({label,value,icon})=>(
+                <div key={label} className="rounded-lg p-3" style={{background:'rgba(255,255,255,.7)',border:'1px solid #BFDBFE'}}>
+                  <p className="text-xs text-slate-500 mb-1">{icon} {label}</p>
+                  <div className="text-sm font-semibold text-slate-800">{value}</div>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-lg p-4 mb-4" style={{background:sevColor[result.severity]+'18',border:`1px solid ${sevColor[result.severity]}50`}}>
+              <p className="text-xs font-bold mb-1" style={{color:sevColor[result.severity]}}>💡 {u.result.aiExplain}</p>
+              <p className="text-xs text-slate-700">{t.aiExplain[result.severity]}</p>
+            </div>
+            <div className="rounded-lg p-4 mb-4" style={{background:sevColor[result.severity]+'10',border:`1px solid ${sevColor[result.severity]}30`}}>
+              <p className="text-xs font-bold mb-1" style={{color:sevColor[result.severity]}}>📋 {u.result.aiRec}</p>
+              <p className="text-xs text-slate-700">{t.rec[result.severity]}</p>
+            </div>
+            <div className="rounded-lg p-3 mb-5" style={{background:'#0F172A'}}>
+              <p className="text-xs font-semibold text-slate-400 mb-2">{u.result.jsonTitle}</p>
+              <pre className="text-xs text-green-400" style={{lineHeight:1.6,overflowX:'auto'}}>{JSON.stringify({
+                image: file?file.name:'(none)',
+                text: desc||'',
+                location: location?{latitude:location.latitude,longitude:location.longitude,address:location.address}:null,
+                asset_type:lang==='zh'?result.assetTypeZh:result.assetTypeEn,
+                issue_type:lang==='zh'?result.issueTypeZh:result.issueTypeEn,
+                severity:result.severity,ai_location:lang==='zh'?result.locationZh:result.locationEn,confidence:result.confidence,
+              },null,2)}</pre>
+            </div>
+            <button className="btn-primary w-full py-3 text-sm" onClick={handleGenReport}>{u.result.genReport}</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOCK MAP COMPONENT
+═══════════════════════════════════════════════════════════ */
+function MockMap({reports,highlight,onPinClick}){
+  const {lang}=useContext(LangCtx);
+  const sevColor={high:'#EF4444',medium:'#F59E0B',low:'#10B981'};
+  const sevLabel={high:lang==='zh'?'高风险':'High',medium:lang==='zh'?'中风险':'Medium',low:lang==='zh'?'低风险':'Low'};
+  const [popup,setPopup]=useState(null);
+  const gridLines=[];
+  for(let i=1;i<5;i++){
+    gridLines.push(<div key={`h${i}`} className="map-grid-line" style={{top:`${i*20}%`,left:0,right:0,height:1}}/>);
+    gridLines.push(<div key={`v${i}`} className="map-grid-line" style={{left:`${i*20}%`,top:0,bottom:0,width:1}}/>);
+  }
+  return(
+    <div className="map-mock" style={{height:200,width:'100%',position:'relative'}} onClick={()=>setPopup(null)}>
+      {gridLines}
+      <div className="absolute inset-0 flex items-center justify-center" style={{opacity:.08}}>
+        <span style={{fontSize:80}}>🗺️</span>
+      </div>
+      <div className="absolute top-2 left-2 bg-white rounded px-2 py-1 text-xs font-semibold text-slate-600 shadow" style={{border:'1px solid #E2E8F0'}}>
+        {lang==='zh'?'华盛市基础设施分布图':'Huasheng City Infrastructure Map'}
+      </div>
+      {reports.map(rp=>(
+        <div key={rp.id} style={{position:'absolute',left:`${rp.mapX||30}%`,top:`${rp.mapY||40}%`,transform:'translate(-50%,-100%)',zIndex:popup?.id===rp.id?5:1}}
+          onClick={e=>{e.stopPropagation();setPopup(popup?.id===rp.id?null:rp);if(onPinClick)onPinClick(rp.id);}}>
+          <div style={{width:14,height:14,borderRadius:'50%',background:sevColor[rp.severity],border:'2.5px solid #fff',boxShadow:'0 2px 8px rgba(0,0,0,.3)',opacity:highlight===rp.id||popup?.id===rp.id?1:0.75,transform:highlight===rp.id||popup?.id===rp.id?'scale(1.5)':'scale(1)',transition:'all .2s',cursor:'pointer'}}/>
+          {(highlight===rp.id)&&(
+            <div style={{background:'#1E293B',color:'#fff',fontSize:10,fontWeight:700,padding:'2px 6px',borderRadius:4,whiteSpace:'nowrap',marginTop:2,textAlign:'center'}}>
+              {lang==='zh'?rp.locationZh:rp.locationEn}
+            </div>
+          )}
+          {popup?.id===rp.id&&(
+            <div className="map-popup">
+              <p className="text-xs font-bold text-slate-900 mb-1">{lang==='zh'?rp.assetNameZh||rp.locationZh:rp.assetNameEn||rp.locationEn}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:sevColor[rp.severity]}}/>
+                <span className="text-xs font-semibold" style={{color:sevColor[rp.severity]}}>{sevLabel[rp.severity]}</span>
+                <span className="text-xs text-slate-400">· {(rp.confidence*100).toFixed(0)}%</span>
+              </div>
+              <p className="text-xs text-slate-500">📍 {lang==='zh'?rp.locationZh:rp.locationEn}</p>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REPORTS PAGE
+═══════════════════════════════════════════════════════════ */
+function ReportsPage({reports,role}){
+  const {t,lang}=useContext(LangCtx);
+  const r=t.reports;
+  const [filter,setFilter]=useState('all');
+  const [modal,setModal]=useState(null);
+  const [toast,setToast]=useState(false);
+  const [mapHighlight,setMapHighlight]=useState(null);
+
+  const SUPERVISOR_STAFF=['ZW','LF','SX','ZM'];
+  const roleReports=role==='inspector'
+    ?reports.filter(rp=>!rp.staffKey||rp.staffKey==='ZW')
+    :role==='supervisor'
+    ?reports.filter(rp=>!rp.staffKey||SUPERVISOR_STAFF.includes(rp.staffKey))
+    :reports;
+  const filtered=filter==='all'?roleReports:roleReports.filter(rp=>rp.severity===filter);
+  const filterKeys=['all','high','medium','low'];
+  const sevColor={high:'#EF4444',medium:'#F59E0B',low:'#10B981'};
+  const sevBg={high:'#FEF2F2',medium:'#FFFBEB',low:'#F0FDF4'};
+
+  return(
+    <div className="p-6">
+      <div className="card p-5 mb-5">
+        <h2 className="text-sm font-semibold text-slate-900 mb-3">📍 {r.modal.mapTitle}</h2>
+        <MockMap reports={roleReports} highlight={mapHighlight} onPinClick={id=>setMapHighlight(mapHighlight===id?null:id)}/>
+        <p className="text-xs text-slate-400 mt-2">{lang==='zh'?'点击报告卡片可在地图上高亮显示风险点位置':'Click a report card to highlight the risk location on the map'}</p>
+      </div>
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
+        {filterKeys.map(k=>(
+          <button key={k} onClick={()=>setFilter(k)}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+            style={filter===k?{background:'#2563EB',color:'#fff',border:'1px solid #2563EB'}:{background:'#fff',color:'#475569',border:'1px solid #E2E8F0'}}>
+            {r.filters[k]}
+            <span className="ml-1.5 text-xs opacity-70">{k==='all'?roleReports.length:roleReports.filter(rp=>rp.severity===k).length}</span>
+          </button>
+        ))}
+        <div className="ml-auto text-xs text-slate-400">{filtered.length} {r.count}</div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filtered.map(rp=>(
+          <div key={rp.id} className="card p-5 flex flex-col gap-4 cursor-pointer transition-all"
+            style={{border:mapHighlight===rp.id?`2px solid ${sevColor[rp.severity]}`:'2px solid transparent',boxShadow:mapHighlight===rp.id?`0 0 0 3px ${sevColor[rp.severity]}20`:'0 1px 3px rgba(0,0,0,.08)'}}
+            onClick={()=>setMapHighlight(mapHighlight===rp.id?null:rp.id)}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono text-xs text-slate-400">{rp.id}</span>
+                  <Badge type={rp.severity}/>
+                </div>
+                <p className="text-sm font-bold text-slate-900 truncate">{lang==='zh'?rp.assetNameZh:rp.assetNameEn}</p>
+                <p className="text-xs text-slate-500 mt-0.5">📍 {lang==='zh'?rp.locationZh:rp.locationEn}</p>
+              </div>
+              {rp.imageUrl?(
+                <img src={rp.imageUrl} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" style={{border:'1px solid #E2E8F0'}}/>
+              ):(
+                <div className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0 text-2xl" style={{background:'#F1F5F9',border:'1px solid #E2E8F0'}}>🏗️</div>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="tag">🔍 {lang==='zh'?rp.issueTypeZh:rp.issueTypeEn}</span>
+              <span className="tag">🏷️ {lang==='zh'?rp.assetTypeZh:rp.assetTypeEn}</span>
+              <span className="tag">📊 {r.card.confidence} {(rp.confidence*100).toFixed(0)}%</span>
+            </div>
+            <div>
+              <div className="flex justify-between text-xs text-slate-400 mb-1">
+                <span>{r.card.confidence}</span><span>{(rp.confidence*100).toFixed(0)}%</span>
+              </div>
+              <div className="conf-bar"><div className="conf-fill" style={{width:`${rp.confidence*100}%`}}/></div>
+            </div>
+            <div className="rounded-lg p-3 text-xs" style={{background:sevBg[rp.severity],border:`1px solid ${sevColor[rp.severity]}30`}}>
+              <span className="font-semibold" style={{color:sevColor[rp.severity]}}>{r.card.aiRec}：</span>
+              <span className="text-slate-700">{lang==='zh'?rp.recommendation.zh:rp.recommendation.en}</span>
+            </div>
+            <div className="flex items-center justify-between pt-1" style={{borderTop:'1px solid #F1F5F9'}}>
+              <div className="flex items-center gap-2">
+                <Badge type={rp.status}/>
+                <span className="text-xs text-slate-400">{fmtDate(rp.createdAt)}</span>
+              </div>
+              <div className="flex gap-2">
+                <button className="btn-ghost text-xs px-3 py-1.5" onClick={e=>{e.stopPropagation();setModal(rp);}}>{r.card.viewDetail}</button>
+                <button className="btn-primary text-xs px-3 py-1.5" onClick={e=>{e.stopPropagation();setToast(true);}}>{r.card.download}</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {filtered.length===0&&(
+        <div className="text-center py-16 text-slate-400">
+          <div className="text-5xl mb-4">📭</div>
+          <p className="text-sm font-medium">{r.empty}</p>
+        </div>
+      )}
+      {modal&&(
+        <div className="modal-bg" onClick={()=>setModal(null)}>
+          <div className="modal modal-wide" onClick={e=>e.stopPropagation()}>
+            <div className="px-6 py-5 flex items-center justify-between" style={{borderBottom:'1px solid #F1F5F9'}}>
+              <div>
+                <p className="font-mono text-xs text-slate-400">{modal.id}</p>
+                <h3 className="text-base font-bold text-slate-900 mt-0.5">{lang==='zh'?modal.assetNameZh:modal.assetNameEn}</h3>
+              </div>
+              <button onClick={()=>setModal(null)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-sm font-bold hover:bg-slate-200">✕</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-slate-500 mb-2">🗺️ {r.modal.mapTitle}</p>
+                <MockMap reports={[modal]} highlight={modal.id}/>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-500 mb-2">📷 {r.modal.photoTitle}</p>
+                {modal.imageUrl?(
+                  <img src={modal.imageUrl} alt="" className="w-full rounded-xl object-cover" style={{maxHeight:200,border:'1px solid #E2E8F0'}}/>
+                ):(
+                  <div className="photo-placeholder" style={{height:140}}>
+                    <span className="text-4xl">📷</span>
+                    <span className="text-xs">{lang==='zh'?'现场照片（模拟占位）':'Field Photo (Mock Placeholder)'}</span>
+                    <div className="flex gap-2 mt-2">
+                      {['IMG_001.jpg','IMG_002.jpg','IMG_003.jpg'].map(n=>(
+                        <div key={n} className="px-3 py-1.5 rounded text-xs font-medium" style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.15)'}}>📎 {n}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  {k:r.modal.fields.reportId,v:modal.id},
+                  {k:r.modal.fields.assetId,v:modal.assetId},
+                  {k:r.modal.fields.assetType,v:lang==='zh'?modal.assetTypeZh:modal.assetTypeEn},
+                  {k:r.modal.fields.issueType,v:lang==='zh'?modal.issueTypeZh:modal.issueTypeEn},
+                  {k:r.modal.fields.severity,v:<Badge type={modal.severity}/>},
+                  {k:r.modal.fields.location,v:lang==='zh'?modal.locationZh:modal.locationEn},
+                  {k:r.modal.fields.confidence,v:`${(modal.confidence*100).toFixed(0)}%`},
+                  {k:r.modal.fields.status,v:<Badge type={modal.status}/>},
+                  {k:r.modal.fields.createdAt,v:fmtDate(modal.createdAt)},
+                ].map(({k,v})=>(
+                  <div key={k} className="rounded-lg p-3" style={{background:'#F8FAFC',border:'1px solid #F1F5F9'}}>
+                    <p className="text-xs text-slate-400 mb-1">{k}</p>
+                    <div className="text-sm font-semibold text-slate-800">{v}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-lg p-4" style={{background:'#F8FAFC',border:'1px solid #F1F5F9'}}>
+                <p className="text-xs font-semibold text-slate-500 mb-1">{r.modal.fields.note}</p>
+                <p className="text-sm text-slate-700">{lang==='zh'?modal.note.zh:modal.note.en}</p>
+              </div>
+              <div className="rounded-lg p-4" style={{background:sevBg[modal.severity],border:`1px solid ${sevColor[modal.severity]}30`}}>
+                <p className="text-xs font-semibold mb-1" style={{color:sevColor[modal.severity]}}>{r.modal.fields.aiRec}</p>
+                <p className="text-sm text-slate-700">{lang==='zh'?modal.recommendation.zh:modal.recommendation.en}</p>
+              </div>
+              <div className="rounded-lg p-3" style={{background:'#0F172A'}}>
+                <p className="text-xs font-semibold text-slate-400 mb-2">{r.modal.fields.jsonTitle}</p>
+                <pre className="text-xs text-green-400" style={{lineHeight:1.6,overflowX:'auto'}}>{JSON.stringify({
+                  report_id:modal.id,asset_id:modal.assetId,
+                  asset_type:lang==='zh'?modal.assetTypeZh:modal.assetTypeEn,
+                  issue_type:lang==='zh'?modal.issueTypeZh:modal.issueTypeEn,
+                  severity:modal.severity,location:lang==='zh'?modal.locationZh:modal.locationEn,
+                  confidence:modal.confidence,status:modal.status,created_at:modal.createdAt,
+                },null,2)}</pre>
+              </div>
+              <button className="btn-primary w-full py-3 text-sm" onClick={()=>{setToast(true);setModal(null);}}>{r.modal.download}</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {toast&&<Toast msg={t.toast.downloaded} onDone={()=>setToast(false)}/>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA CENTER PAGE — HELPERS
+═══════════════════════════════════════════════════════════ */
+const SRC_MAP_COLORS={
+  field:{bg:'#EFF6FF',color:'#1D4ED8',border:'#BFDBFE'},
+  device:{bg:'#F0FDF4',color:'#065F46',border:'#A7F3D0'},
+  aerial:{bg:'#F5F3FF',color:'#5B21B6',border:'#DDD6FE'},
+  legacy:{bg:'#FFF7ED',color:'#9A3412',border:'#FED7AA'},
+};
+const LAYER_COLORS={raw:{bg:'#FFF7ED',color:'#9A3412',border:'#FED7AA'},cleaned:{bg:'#F0FDF4',color:'#065F46',border:'#A7F3D0'},structured:{bg:'#EFF6FF',color:'#1D4ED8',border:'#BFDBFE'}};
+const DECISION_COLORS={repair:'decision-repair',dispatch:'decision-dispatch',monitor:'decision-monitor'};
+
+function QualityRing({score,label}){
+  const color=score>=80?'#10B981':score>=60?'#F59E0B':'#EF4444';
+  return(
+    <div className="flex flex-col items-center gap-1">
+      <div className="quality-ring" style={{borderColor:color,color}}>{score}</div>
+      <span className="text-xs text-slate-400">{label}</span>
+    </div>
+  );
+}
+
+function DataLineageDrawer({rec,onClose,dc,lang}){
+  const steps=dc.lineage.steps;
+  const icons=['📡','🤖','🗄️','📊'];
+  const times=[fmtDateTime(rec.uploadTime),fmtDateTime(new Date(new Date(rec.uploadTime).getTime()+5*60000).toISOString()),fmtDateTime(new Date(new Date(rec.uploadTime).getTime()+12*60000).toISOString()),fmtDateTime(new Date(new Date(rec.uploadTime).getTime()+18*60000).toISOString())];
+  const srcColors=SRC_MAP_COLORS[rec.source]||SRC_MAP_COLORS.field;
+  const layerColors=LAYER_COLORS[rec.layer]||LAYER_COLORS.structured;
+  const decisionKey=rec.decision||'monitor';
+  const decisionLabel=dc.decision[decisionKey];
+  return(
+    <>
+      <div className="drawer-overlay" onClick={onClose}/>
+      <div className="drawer">
+        <div className="drawer-header">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-900">{rec.id}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{lang==='zh'?rec.assetTypeZh:rec.assetTypeEn} · {lang==='zh'?rec.locationZh:rec.locationEn}</p>
+            </div>
+            <button className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm hover:bg-slate-200" onClick={onClose}>✕</button>
+          </div>
+        </div>
+        <div className="drawer-body space-y-6">
+          {/* Data quality scores */}
+          <div>
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-3">{dc.quality.completeness} / {dc.quality.confidence} / {dc.quality.freshness}</p>
+            <div className="flex gap-4 justify-around p-4 rounded-xl" style={{background:'#F8FAFC',border:'1px solid #E2E8F0'}}>
+              <QualityRing score={rec.quality?.completeness||85} label={dc.quality.completeness}/>
+              <QualityRing score={rec.quality?.confidence||Math.round(rec.confidence*100)} label={dc.quality.confidence}/>
+              <QualityRing score={rec.quality?.freshness||72} label={dc.quality.freshness}/>
+            </div>
+          </div>
+          {/* AI Reason */}
+          <div className="p-4 rounded-xl" style={{background:'#F5F3FF',border:'1px solid #DDD6FE'}}>
+            <p className="text-xs font-bold text-purple-700 mb-2">🤖 {dc.aiReason}</p>
+            <p className="text-xs text-purple-800 leading-relaxed">{lang==='zh'?rec.aiReasonZh:rec.aiReasonEn}</p>
+          </div>
+          {/* Decision */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-slate-600">{lang==='zh'?'AI决策建议':'AI Decision'}:</span>
+            <span className={DECISION_COLORS[decisionKey]}>{decisionLabel}</span>
+          </div>
+          {/* Source & Layer */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-lg" style={{background:'#F8FAFC',border:'1px solid #E2E8F0'}}>
+              <p className="text-xs text-slate-400 mb-1">{lang==='zh'?'数据来源':'Source'}</p>
+              <span className="tag" style={{background:srcColors.bg,color:srcColors.color,borderColor:srcColors.border}}>{dc.source[rec.source]||rec.source}</span>
+            </div>
+            <div className="p-3 rounded-lg" style={{background:'#F8FAFC',border:'1px solid #E2E8F0'}}>
+              <p className="text-xs text-slate-400 mb-1">{lang==='zh'?'数据层级':'Layer'}</p>
+              <span className="tag" style={{background:layerColors.bg,color:layerColors.color,borderColor:layerColors.border}}>{dc.layer[rec.layer]||rec.layer}</span>
+            </div>
+          </div>
+          {/* Lineage timeline */}
+          <div>
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-4">{dc.lineage.title}</p>
+            <div className="flex items-center gap-0">
+              {steps.map((step,i)=>(
+                <React.Fragment key={step}>
+                  <div className="flex flex-col items-center gap-1" style={{flex:'0 0 auto'}}>
+                    <div className="lineage-node">{icons[i]}</div>
+                    <span className="text-xs text-slate-600 font-medium text-center" style={{maxWidth:64,fontSize:10}}>{step}</span>
+                    <span className="text-slate-400 text-center" style={{fontSize:9,maxWidth:64}}>{times[i]}</span>
+                  </div>
+                  {i<steps.length-1&&<div className="lineage-line"/>}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+          {/* Source distribution mini chart */}
+          <div>
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-3">{dc.sourceDist.title}</p>
+            {[{k:'field',pct:42},{k:'device',pct:28},{k:'aerial',pct:18},{k:'legacy',pct:12}].map(({k,pct})=>{
+              const c=SRC_MAP_COLORS[k];
+              return(
+                <div key={k} className="mb-2">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs text-slate-600">{dc.source[k]}</span>
+                    <span className="text-xs font-bold text-slate-700">{pct}%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="src-bar h-full" style={{width:`${pct}%`,background:c.color}}/>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function GlobalSearch({records,onClose,dc,lang,t}){
+  const [q,setQ]=useState('');
+  const inputRef=useRef(null);
+  useEffect(()=>{inputRef.current?.focus();},[]);
+  useEffect(()=>{
+    function onKey(e){if(e.key==='Escape')onClose();}
+    window.addEventListener('keydown',onKey);
+    return()=>window.removeEventListener('keydown',onKey);
+  },[onClose]);
+  function fuzzy(str,query){
+    const s=str.toLowerCase(),qr=query.toLowerCase();
+    let si=0;
+    for(let qi=0;qi<qr.length;qi++){si=s.indexOf(qr[qi],si);if(si===-1)return false;si++;}
+    return true;
+  }
+  const results=q.trim().length<2?[]:records.filter(r=>{
+    const fields=[r.id,lang==='zh'?r.locationZh:r.locationEn,lang==='zh'?r.assetTypeZh:r.assetTypeEn,lang==='zh'?r.issueTypeZh:r.issueTypeEn];
+    return fields.some(f=>fuzzy(f,q.trim()));
+  }).slice(0,8);
+  const sevColor={high:'#EF4444',medium:'#F59E0B',low:'#10B981'};
+  return(
+    <div className="gsearch-overlay" onClick={onClose}>
+      <div className="gsearch-box" onClick={e=>e.stopPropagation()}>
+        <div className="flex items-center gap-3 px-4 py-3" style={{borderBottom:'1px solid #F1F5F9'}}>
+          <span className="text-slate-400">🔍</span>
+          <input ref={inputRef} value={q} onChange={e=>setQ(e.target.value)}
+            className="flex-1 text-sm text-slate-900 outline-none bg-transparent"
+            placeholder={dc.search.placeholder}/>
+          <button className="text-xs text-slate-400 px-2 py-1 rounded bg-slate-100" onClick={onClose}>ESC</button>
+        </div>
+        <div className="max-h-80 overflow-y-auto">
+          {q.trim().length>=2&&results.length===0&&(
+            <div className="text-center py-8 text-slate-400 text-sm">{dc.search.noResult}</div>
+          )}
+          {results.map(r=>(
+            <div key={r.id} className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer" style={{borderBottom:'1px solid #F8FAFC'}}>
+              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{background:sevColor[r.severity]}}/>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold text-slate-800">{r.id} · {lang==='zh'?r.assetTypeZh:r.assetTypeEn}</p>
+                <p className="text-xs text-slate-500">{lang==='zh'?r.locationZh:r.locationEn} · {lang==='zh'?r.issueTypeZh:r.issueTypeEn}</p>
+              </div>
+              <Badge type={r.severity}/>
+            </div>
+          ))}
+          {q.trim().length<2&&(
+            <div className="px-4 py-6 text-center text-xs text-slate-400">{lang==='zh'?'输入至少2个字符开始搜索（支持模糊匹配）':'Type at least 2 characters to search (fuzzy match supported)'}</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA CENTER PAGE
+═══════════════════════════════════════════════════════════ */
+function SkeletonRow({cols}){
+  return(
+    <tr style={{borderBottom:'1px solid #F8FAFC'}}>
+      {Array.from({length:cols}).map((_,i)=>(
+        <td key={i} className="px-4 py-3">
+          <div className="skeleton" style={{height:12,width:`${50+Math.random()*40}%`}}>&nbsp;</div>
+        </td>
+      ))}
+    </tr>
+  );
+}
+
+function DataCenterPage({records,role,globalSearchOpen,onCloseGlobalSearch}){
+  const {t,lang}=useContext(LangCtx);
+  const dc=t.datacenter;
+  const [sevFilter,setSevFilter]=useState('all');
+  const [typeFilter,setTypeFilter]=useState('all');
+  const [issueFilter,setIssueFilter]=useState('all');
+  const [layerFilter,setLayerFilter]=useState('all');
+  const [drawerRec,setDrawerRec]=useState(null);
+  const [loading,setLoading]=useState(false);
+
+  useEffect(()=>{
+    setLoading(true);
+    const t=setTimeout(()=>setLoading(false),600);
+    return()=>clearTimeout(t);
+  },[role]);
+
+  const roleRecords=role==='inspector'
+    ?records.filter(r=>r.source==='field')
+    :role==='supervisor'
+    ?records.filter(r=>['field','device'].includes(r.source))
+    :records;
+
+  const allTypes=[...new Set(roleRecords.map(r=>lang==='zh'?r.assetTypeZh:r.assetTypeEn))];
+  const allIssues=[...new Set(roleRecords.map(r=>lang==='zh'?r.issueTypeZh:r.issueTypeEn))];
+
+  const filtered=roleRecords.filter(r=>{
+    const typeMatch=typeFilter==='all'||(lang==='zh'?r.assetTypeZh:r.assetTypeEn)===typeFilter;
+    const issueMatch=issueFilter==='all'||(lang==='zh'?r.issueTypeZh:r.issueTypeEn)===issueFilter;
+    const sevMatch=sevFilter==='all'||r.severity===sevFilter;
+    const layerMatch=layerFilter==='all'||r.layer===layerFilter;
+    return typeMatch&&issueMatch&&sevMatch&&layerMatch;
+  });
+
+  const highCount=roleRecords.filter(r=>r.severity==='high').length;
+  const highPct=roleRecords.length>0?Math.round(highCount/roleRecords.length*100)+'%':'0%';
+  const avgConf=roleRecords.length>0?(roleRecords.reduce((s,r)=>s+r.confidence,0)/roleRecords.length*100).toFixed(1)+'%':'—';
+  const sourceCount=[...new Set(roleRecords.map(r=>r.source))].length;
+  const sevColor={high:'#EF4444',medium:'#F59E0B',low:'#10B981'};
+  const pipelineIcons=['📡','🤖','🗄️','📊','📋'];
+
+  return(
+    <div className="p-6 space-y-6">
+      {/* Global search overlay */}
+      {globalSearchOpen&&<GlobalSearch records={roleRecords} onClose={onCloseGlobalSearch} dc={dc} lang={lang} t={t}/>}
+      {/* Drawer */}
+      {drawerRec&&<DataLineageDrawer rec={drawerRec} onClose={()=>setDrawerRec(null)} dc={dc} lang={lang}/>}
+
+      {/* Banner */}
+      <div className="rounded-xl p-4 flex items-start gap-3" style={{background:'linear-gradient(135deg,#EFF6FF,#F0F9FF)',border:'1px solid #BFDBFE'}}>
+        <span className="text-2xl flex-shrink-0">🏢</span>
+        <div className="flex-1">
+          <p className="text-sm font-bold text-blue-900">{dc.sub}</p>
+          <p className="text-xs text-blue-600 mt-0.5">
+            {role==='inspector'?(lang==='zh'?'当前仅显示您的外业采集数据':'Showing your field collection data only')
+            :role==='supervisor'?(lang==='zh'?'当前显示本部门外业与设备数据':'Showing department field & device data')
+            :(lang==='zh'?'当前显示全公司所有来源数据':'Showing all company data sources')}
+          </p>
+        </div>
+      </div>
+
+      {/* Summary KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {label:dc.summary.total,value:roleRecords.length,icon:'🗄️',color:'#3B82F6',bg:'#EFF6FF'},
+          {label:dc.summary.highRisk,value:highPct,icon:'⚠️',color:'#EF4444',bg:'#FEF2F2'},
+          {label:dc.summary.avgConf,value:avgConf,icon:'🤖',color:'#10B981',bg:'#F0FDF4'},
+          {label:dc.summary.sources,value:sourceCount,icon:'📡',color:'#F59E0B',bg:'#FFFBEB'},
+        ].map(({label,value,icon,color,bg})=>(
+          <div key={label} className="card p-4 flex items-center gap-3" style={{borderLeft:`4px solid ${color}`}}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{background:bg}}>{icon}</div>
+            <div>
+              <p className="text-xs font-semibold text-slate-500">{label}</p>
+              <p className="text-xl font-bold text-slate-900">{value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pipeline */}
+      <div className="card p-5">
+        <h2 className="text-sm font-semibold text-slate-900 mb-4">{dc.pipeline.title}</h2>
+        <div className="pipeline">
+          {dc.pipeline.steps.map((step,i)=>(
+            <React.Fragment key={step}>
+              <div className="pipeline-step" style={{background:i===0?'#EFF6FF':'#fff',borderColor:i===0?'#BFDBFE':'#E2E8F0'}}>
+                <div className="text-2xl mb-1">{pipelineIcons[i]}</div>
+                <p className="text-xs font-semibold text-slate-700">{step}</p>
+                <div className="w-2 h-2 rounded-full mx-auto mt-2" style={{background:i===0?'#3B82F6':'#10B981'}}/>
+              </div>
+              {i<dc.pipeline.steps.length-1&&<div className="pipeline-arrow">→</div>}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* Layer tabs + Filters — single row, left/right groups */}
+      <div className="flex items-center gap-3" style={{flexWrap:'wrap'}}>
+        {/* Left: layer tabs */}
+        <div className="flex gap-2" style={{flexWrap:'wrap',flexShrink:0}}>
+          {['all','raw','cleaned','structured'].map(k=>(
+            <button key={k} className={`layer-tab${layerFilter===k?' active':''}`} onClick={()=>setLayerFilter(k)}>
+              {k==='all'?dc.layer.all:dc.layer[k]}
+            </button>
+          ))}
+        </div>
+        {/* Spacer */}
+        <div style={{flex:1,minWidth:16}}/>
+        {/* Right: dropdowns + count */}
+        <div className="flex gap-2 items-center" style={{flexWrap:'wrap',justifyContent:'flex-end',flexShrink:0}}>
+          <select className="filter-select" value={sevFilter} onChange={e=>setSevFilter(e.target.value)}>
+            <option value="all">{dc.filters.severity}: {dc.filters.all}</option>
+            <option value="high">{t.badges.high}</option>
+            <option value="medium">{t.badges.medium}</option>
+            <option value="low">{t.badges.low}</option>
+          </select>
+          <select className="filter-select" value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}>
+            <option value="all">{dc.filters.assetType}: {dc.filters.all}</option>
+            {allTypes.map(tp=><option key={tp} value={tp}>{tp}</option>)}
+          </select>
+          <select className="filter-select" value={issueFilter} onChange={e=>setIssueFilter(e.target.value)}>
+            <option value="all">{dc.filters.issueType}: {dc.filters.all}</option>
+            {allIssues.map(is=><option key={is} value={is}>{is}</option>)}
+          </select>
+          <div className="text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded whitespace-nowrap">{filtered.length} {dc.table.count}</div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="card">
+        <div className="px-5 py-4 flex items-center justify-between" style={{borderBottom:'1px solid #F1F5F9'}}>
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">{dc.table.title}</h2>
+            <p className="text-xs text-slate-400 mt-0.5">{dc.table.sub}</p>
+          </div>
+          <span className="text-xs text-slate-400">{lang==='zh'?'点击行查看详情':'Click row for details'}</span>
+        </div>
+        {roleRecords.length===0?(
+          <div className="text-center py-16 text-slate-400">
+            <div className="text-5xl mb-4">🗄️</div>
+            <p className="text-sm font-medium">{dc.empty}</p>
+          </div>
+        ):(
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{background:'#F8FAFC',borderBottom:'1px solid #F1F5F9'}}>
+                  {dc.table.cols.map(h=>(
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {loading
+                  ?Array.from({length:6}).map((_,i)=><SkeletonRow key={i} cols={10}/>)
+                  :filtered.slice(0,100).map((rec,i)=>{
+                  const sc=SRC_MAP_COLORS[rec.source]||SRC_MAP_COLORS.field;
+                  const lc=LAYER_COLORS[rec.layer]||LAYER_COLORS.structured;
+                  const decKey=rec.decision||'monitor';
+                  return(
+                    <tr key={rec.id} className="tr cursor-pointer" style={{borderBottom:'1px solid #F8FAFC',background:i%2===0?'#fff':'#FAFBFC'}}
+                      onClick={()=>setDrawerRec(rec)}>
+                      <td className="px-4 py-2.5 font-mono text-xs text-blue-600 whitespace-nowrap hover:underline">{rec.id}</td>
+                      <td className="px-4 py-2.5 text-xs font-medium text-slate-800 whitespace-nowrap">{lang==='zh'?rec.assetTypeZh:rec.assetTypeEn}</td>
+                      <td className="px-4 py-2.5 text-xs text-slate-600 whitespace-nowrap">{lang==='zh'?rec.locationZh:rec.locationEn}</td>
+                      <td className="px-4 py-2.5 text-xs text-slate-600 whitespace-nowrap">{lang==='zh'?rec.issueTypeZh:rec.issueTypeEn}</td>
+                      <td className="px-4 py-2.5"><Badge type={rec.severity} tip={lang==='zh'?`风险等级：${rec.severity==='high'?'高风险，需立即处理':rec.severity==='medium'?'中风险，建议近期处理':'低风险，纳入常规监测'}`:`Risk: ${rec.severity==='high'?'High — immediate action required':rec.severity==='medium'?'Medium — schedule soon':'Low — routine monitoring'}`}/></td>
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-2 has-tip" data-tip={`AI ${lang==='zh'?'置信度':'Confidence'}: ${(rec.confidence*100).toFixed(0)}%`}>
+                          <div className="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div className="h-full rounded-full" style={{width:`${rec.confidence*100}%`,background:sevColor[rec.severity]}}/>
+                          </div>
+                          <span className="text-xs font-semibold text-slate-700">{(rec.confidence*100).toFixed(0)}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-xs text-slate-500 whitespace-nowrap">{fmtDateTime(rec.uploadTime)}</td>
+                      <td className="px-4 py-2.5">
+                        <span className="tag" style={{background:sc.bg,color:sc.color,borderColor:sc.border}}>{dc.source[rec.source]||rec.source}</span>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className="tag" style={{background:lc.bg,color:lc.color,borderColor:lc.border}}>{dc.layer[rec.layer]||rec.layer}</span>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className={DECISION_COLORS[decKey]}>{dc.decision[decKey]}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {filtered.length>100&&(
+              <div className="px-5 py-3 text-xs text-slate-400 text-center" style={{borderTop:'1px solid #F1F5F9'}}>
+                {lang==='zh'?`显示前100条，共${filtered.length}条`:`Showing first 100 of ${filtered.length} records`}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROFILE PAGE
+═══════════════════════════════════════════════════════════ */
+function ProfilePage({onLogout}){
+  const {t,lang}=useContext(LangCtx);
+  const p=t.profile;
+  const [showConfirm,setShowConfirm]=useState(false);
+  const me=STAFF['ZW'];
+  const myTasks=ALL_TASKS.filter(tk=>tk.staffKey==='ZW');
+  const completed=myTasks.filter(tk=>tk.status==='completed').length;
+  const pending=myTasks.filter(tk=>tk.status==='pending'||tk.status==='overdue').length;
+
+  return(
+    <div className="p-6">
+      <div className="max-w-2xl mx-auto space-y-5">
+        {/* Profile card */}
+        <div className="card p-6">
+          <div className="flex items-center gap-5 mb-6">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold flex-shrink-0" style={{background:'linear-gradient(135deg,#2563EB,#7C3AED)'}}>
+              {(lang==='zh'?me.nameZh:me.nameEn).charAt(0)}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">{lang==='zh'?me.nameZh:me.nameEn}</h2>
+              <p className="text-sm text-slate-500">{lang==='zh'?me.positionZh:me.positionEn}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="w-2 h-2 rounded-full bg-green-400"/>
+                <span className="text-xs text-green-600 font-medium">{lang==='zh'?'在线':'Online'}</span>
+              </div>
+            </div>
+          </div>
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-3 mb-6">
+            {[
+              {label:p.stats.myTasks,value:myTasks.length,color:'#3B82F6'},
+              {label:p.stats.completed,value:completed,color:'#10B981'},
+              {label:p.stats.pending,value:pending,color:'#F59E0B'},
+              {label:p.stats.reports,value:3,color:'#8B5CF6'},
+            ].map(({label,value,color})=>(
+              <div key={label} className="text-center p-3 rounded-xl" style={{background:'#F8FAFC',border:'1px solid #F1F5F9'}}>
+                <p className="text-xl font-bold" style={{color}}>{value}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+          {/* Info fields */}
+          <div className="space-y-3">
+            {[
+              {k:p.info.name,v:lang==='zh'?me.nameZh:me.nameEn,icon:'👤'},
+              {k:p.info.empId,v:me.empId,icon:'🪪'},
+              {k:p.info.phone,v:me.phone,icon:'📱'},
+              {k:p.info.company,v:lang==='zh'?me.companyZh:me.companyEn,icon:'🏢'},
+              {k:p.info.dept,v:lang==='zh'?me.deptZh:me.deptEn,icon:'🏗️'},
+              {k:p.info.role,v:lang==='zh'?me.positionZh:me.positionEn,icon:'💼'},
+            ].map(({k,v,icon})=>(
+              <div key={k} className="flex items-center gap-3 p-3 rounded-lg" style={{background:'#F8FAFC',border:'1px solid #F1F5F9'}}>
+                <span className="text-base flex-shrink-0">{icon}</span>
+                <span className="text-xs font-semibold text-slate-400 w-20 flex-shrink-0">{k}</span>
+                <span className="text-sm font-medium text-slate-800">{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Actions */}
+        <div className="card p-5 space-y-3">
+          <button className="w-full flex items-center gap-3 p-3 rounded-lg text-left hover:bg-slate-50 transition-colors" style={{border:'1px solid #F1F5F9'}}>
+            <span className="text-lg">⚙️</span>
+            <div>
+              <p className="text-sm font-semibold text-slate-800">{p.settings}</p>
+              <p className="text-xs text-slate-400">{lang==='zh'?'通知、显示、语言偏好':'Notifications, display, language preferences'}</p>
+            </div>
+            <span className="ml-auto text-slate-300">›</span>
+          </button>
+          <button className="w-full flex items-center gap-3 p-3 rounded-lg text-left hover:bg-red-50 transition-colors" style={{border:'1px solid #FEE2E2'}}
+            onClick={()=>setShowConfirm(true)}>
+            <span className="text-lg">🚪</span>
+            <div>
+              <p className="text-sm font-semibold text-red-600">{p.logout}</p>
+              <p className="text-xs text-red-400">{lang==='zh'?'退出当前账户':'Sign out of current account'}</p>
+            </div>
+            <span className="ml-auto text-red-300">›</span>
+          </button>
+        </div>
+      </div>
+      {showConfirm&&(
+        <div className="modal-bg" onClick={()=>setShowConfirm(false)}>
+          <div className="modal" style={{maxWidth:360}} onClick={e=>e.stopPropagation()}>
+            <div className="p-6 text-center">
+              <div className="text-4xl mb-3">🚪</div>
+              <h3 className="text-base font-bold text-slate-900 mb-2">{p.logoutConfirm}</h3>
+              <p className="text-xs text-slate-500 mb-5">{lang==='zh'?'您将退出当前登录状态，需要重新登录才能访问系统。':'You will be signed out and need to log in again to access the system.'}</p>
+              <div className="flex gap-3">
+                <button className="btn-ghost flex-1 py-2.5 text-sm justify-center" onClick={()=>setShowConfirm(false)}>{lang==='zh'?'取消':'Cancel'}</button>
+                <button className="btn-primary flex-1 py-2.5 text-sm justify-center" style={{background:'#EF4444'}} onClick={()=>{setShowConfirm(false);onLogout();}}>{p.logout}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APP ROOT
+═══════════════════════════════════════════════════════════ */
+function App(){
+  const [lang,setLang]=useState('zh');
+  const t=I18N[lang];
+  const [page,setPage]=useState('dashboard');
+  const [reports,setReports]=useState(INIT_REPORTS);
+  const [allDcRecords,setAllDcRecords]=useState(()=>generateAutoData());
+  const [role,setRole]=useState('inspector');
+  const [toast,setToast]=useState(null);
+  const [globalSearchOpen,setGlobalSearchOpen]=useState(false);
+
+  // ⌘K / Ctrl+K shortcut
+  useEffect(()=>{
+    function onKey(e){if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();setGlobalSearchOpen(v=>!v);}}
+    window.addEventListener('keydown',onKey);
+    return()=>window.removeEventListener('keydown',onKey);
+  },[]);
+
+  function handleReportCreated(report){
+    setReports(prev=>[report,...prev]);
+    const sev=report.severity;
+    const now=new Date();
+    const dcRec={
+      id:genDCId(),
+      assetTypeZh:report.assetTypeZh,assetTypeEn:report.assetTypeEn,
+      issueTypeZh:report.issueTypeZh,issueTypeEn:report.issueTypeEn,
+      locationZh:report.locationZh,locationEn:report.locationEn,
+      severity:sev,confidence:report.confidence,
+      uploadTime:report.createdAt,source:'field',staffKey:'ZW',
+      layer:'structured',
+      quality:{completeness:95,confidence:Math.round(report.confidence*100),freshness:100},
+      aiReasonZh:AI_REASONS_ZH[0],aiReasonEn:AI_REASONS_EN[0],
+      decision:DECISIONS_BY_SEV[sev],
+    };
+    setAllDcRecords(prev=>[dcRec,...prev]);
+    setPage('reports');
+    setToast(t.toast.reportCreated);
+  }
+
+  function handleLogout(){
+    setToast(t.toast.loggedOut);
+    setTimeout(()=>setPage('dashboard'),1500);
+  }
+
+  function toggleLang(){setLang(l=>l==='zh'?'en':'zh');}
+
+  return(
+    <LangCtx.Provider value={{lang,t,setLang}}>
+      <div className="flex" style={{minHeight:'100vh'}}>
+        <Sidebar page={page} onNav={setPage} role={role} onRoleChange={setRole}/>
+        <div className="flex-1 flex flex-col min-w-0" style={{marginLeft:224}}>
+          <TopBar page={page} onLangToggle={toggleLang} onSearch={()=>setGlobalSearchOpen(true)}/>
+          <main className="flex-1 overflow-y-auto">
+            {page==='dashboard'&&<DashboardPage role={role}/>}
+            {page==='upload'&&<UploadPage onReportCreated={handleReportCreated}/>}
+            {page==='reports'&&<ReportsPage reports={reports} role={role}/>}
+            {page==='datacenter'&&<DataCenterPage records={allDcRecords} role={role} globalSearchOpen={globalSearchOpen&&page==='datacenter'} onCloseGlobalSearch={()=>setGlobalSearchOpen(false)}/>}
+            {page==='profile'&&<ProfilePage onLogout={handleLogout}/>}
+            {/* Global search available from any page */}
+            {globalSearchOpen&&page!=='datacenter'&&<GlobalSearch records={allDcRecords} onClose={()=>setGlobalSearchOpen(false)} dc={t.datacenter} lang={lang} t={t}/>}
+          </main>
+        </div>
+        {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
+      </div>
+    </LangCtx.Provider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
